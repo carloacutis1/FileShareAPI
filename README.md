@@ -1,6 +1,8 @@
-# basement
+# BASEMENT DWELLERS
 
-Matt was here
+## Developers
+* Matt was here
+* Marley Hall
 
 - Joshua Fouch
 
