@@ -1,15 +1,10 @@
 # BASEMENT DWELLERS
 
 ## Developers
-<<<<<<< HEAD
 * Matt was here
 * Marley Hall
-
-- Joshua Fouch
-=======
-
 * Henry Cooper
->>>>>>> 8ca12d3 (added my name to developers sections of README.md)
+* Joshua Fouch
 
 ## Getting started
 
