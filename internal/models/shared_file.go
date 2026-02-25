@@ -20,3 +20,8 @@ var sharedFiles = []SharedFile{
 	{ID: 3, FileID: 103, OwnerID: 1, SharedWith: "chris", SharedWithID: 7},
 	{ID: 4, FileID: 104, OwnerID: 4, SharedWith: "charlie", SharedWithID: 8},
 }
+
+// return the sharedfile slice
+func GetSharedFiles() []SharedFile {
+	return sharedFiles
+}
