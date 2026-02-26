@@ -9,6 +9,10 @@ func main() {
 	// create a Gin router
 	router := gin.Default()
 
+	// register route: GET /folders
+	// will list the folders table in JSON
+	router.GET("/folders", handlers.GetFolders)
+
 	// register route: GET /shared-files
 	// will list the shared-files directory in JSON
 	router.GET("/shared-files", handlers.ListSharedFiles)
