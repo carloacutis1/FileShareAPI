@@ -16,6 +16,7 @@ func main() {
 	// register route: GET /shared-files
 	// will list the shared-files directory in JSON
 	router.GET("/shared-files", handlers.ListSharedFiles)
+	router.GET("/users", handlers.ListUserModels)
 
 	// lists all files
 	router.GET("/files", handlers.ListFiles)
