@@ -13,7 +13,6 @@ image: golang:1.25
 script:
   - go mod download
   - go mod verify
-  - go build ./..
 
 build:
 # build will compile the go code into binary
