@@ -1,19 +1,26 @@
-# This pipeline will pass immediately and can be expanded as code is developed
 # We will need to edit this pipeline as we code.
 
 stages:
+  - validate
   - build
+  - lint
   - test
 
-go-version:
-  stage: build
-  image: golang:1.25
-  script:
-    - go version
+validate:
+# validate stage will make sure all dependencies are installed
+
+build:
+# build will compile the go code into binary
+# check for syntax errors
+
+lint:
+# linting stage will test for formatting
 
 test:
-  stage: test
-  image: golang:1.25
-  script:
-    - echo "No tests implemented yet"
-  allow_failure: false
+# extensive testing stage
+# following the testing pyramid
+# unit tests -> integration -> E2E
+# will be implemented as we create more tests
+
+# later on we need to have these sections:
+# 1. docker build test
