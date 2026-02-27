@@ -8,8 +8,8 @@ stages:
 
 validate:
 # validate stage will make sure all dependencies are installed
-stage: validate
-image: golang:1.25
-script:
-  - go mod download
-  - go mod verify
+  stage: validate
+  image: golang:1.25
+  script:
+    - go mod download
+    - go mod verify
