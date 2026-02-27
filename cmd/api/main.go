@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
 )
@@ -22,5 +24,5 @@ func main() {
 	router.GET("/files", handlers.ListFiles)
 
 	// start the HTTP server
-	router.Run(":8080")
+	log.Fatal(router.Run(":8080"))
 }
