@@ -13,19 +13,3 @@ image: golang:1.25
 script:
   - go mod download
   - go mod verify
-
-build:
-# build will compile the go code into binary
-# check for syntax errors
-
-lint:
-# linting stage will test for formatting
-
-test:
-# extensive testing stage
-# following the testing pyramid
-# unit tests -> integration -> E2E
-# will be implemented as we create more tests
-
-# later on we need to have these sections:
-# 1. docker build test
