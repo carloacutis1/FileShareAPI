@@ -29,9 +29,5 @@ build stage:
 lint:
   stage: lint
   image: golangci/golangci-lint:v1.59.1
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - .cache
   script:
     - golangci-lint run ./...
