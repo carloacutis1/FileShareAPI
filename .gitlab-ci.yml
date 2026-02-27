@@ -6,10 +6,22 @@ stages:
   - lint
   - test
 
-validate:
-# validate stage will make sure all dependencies are installed
+validate stage:
+  # validate stage will make sure all dependencies are installed
   stage: validate
   image: golang:1.25
   script:
     - go mod download
     - go mod verify
+
+build stage:
+  # build will compile the go code into binary
+  # check for syntax errors
+  stage: build
+  image: golang:1.25-alpine
+  script:
+    - go build -o basement ./cmd/api/main.go
+  artifacts:
+    paths:
+      - basement
+    expire_in: 1 day
