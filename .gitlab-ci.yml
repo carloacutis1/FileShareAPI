@@ -1,6 +1,8 @@
+# CI/CD Pipeline for automation
 # We will need to edit this pipeline as we code.
 
 stages:
+  # each stage will run to make sure our whole codebase works for each merge request
   - validate
   - build
   - lint
@@ -15,11 +17,14 @@ validate stage:
     - go mod verify
 
 build stage:
-  # build will compile the go code into binary
-  # check for syntax errors
+  # build stage will compile the go code into binary
+  # will checks for basic syntax errors
   stage: build
   image: golang:1.25-alpine
   script:
+    # builds an executable of our whole source code
+    # running this command locally will build the file
+    # you can test it and then run `./basement` to test our app
     - go build -o basement ./cmd/api/main.go
   artifacts:
     paths:
