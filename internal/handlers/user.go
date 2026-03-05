@@ -1,16 +1,14 @@
 package handlers
 
 import (
-	"net/http"
+	"net/http" // Import HTTP Client & Server Functionality - MH
 
-	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/gin-gonic/gin"                                      // Import GIN - MH
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models" // Connect with models folder containing other user.go - MH
 )
 
-// ListUserModels handles GET /your-endpoint
-
+// ListUserModels handles GET /users
 // Returns all items as JSON
-
 func ListUserModels(c *gin.Context) {
 	// Get data from model layer
 	items := models.GetAllUserModels()
