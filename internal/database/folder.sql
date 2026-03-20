@@ -1,0 +1,7 @@
+CREATE TABLE folders (
+    id TEXT PRIMARY KEY,
+    parent_folder_id TEXT REFERENCES folders(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
