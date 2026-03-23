@@ -2,22 +2,22 @@ package main
 
 import (
 	"log"
-
 	"github.com/gin-gonic/gin"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/routes"
 )
 
 func main() {
 	// create a Gin router
 	router := gin.Default()
 
+	// setup routes
+	routes.SetupRoutes(router)
+
 	// register route: GET /folders
 	// will list the folders table in JSON
 	router.GET("/folders", handlers.GetFolders)
 
-	// register route: GET /shared-files
-	// will list the shared-files directory in JSON
-	router.GET("/shared-files", handlers.ListSharedFiles)
 	router.GET("/users", handlers.ListUserModels)
 
 	// lists all files
