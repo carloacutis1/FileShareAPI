@@ -8,7 +8,7 @@ stages:
   - lint
   - test
 
-validate stage:
+validate_stage:
   # validate stage will make sure all dependencies are installed
   stage: validate
   image: golang:1.25
@@ -16,7 +16,7 @@ validate stage:
     - go mod download
     - go mod verify
 
-build stage:
+build_stage:
   # build stage will compile the go code into binary
   # will checks for basic syntax errors
   stage: build
@@ -31,7 +31,7 @@ build stage:
       - basement
     expire_in: 1 day
 
-lint:
+lint_stage:
   stage: lint
   image: golangci/golangci-lint:v2.9.0
   script:
