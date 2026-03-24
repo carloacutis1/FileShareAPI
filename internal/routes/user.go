@@ -1,12 +1,12 @@
 package routes
 
-// User model api routes
+// Import packages
 import (
 	"github.com/gin-gonic/gin"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
 )
 
-// user model api routes
+// User model api routes
 func SetupUserRoutes(router *gin.Engine) {
-	router.GET("/users", handlers.ListUserModels) // Using shared_file.go as a reference - M
+	router.GET("/users", handlers.ListUserModels) // Using shared_file.go as a reference - MH
 }
