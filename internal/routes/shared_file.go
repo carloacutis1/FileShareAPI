@@ -1,4 +1,5 @@
 package routes
+
 // shared_file model api routes
 import (
 	"github.com/gin-gonic/gin"
@@ -6,6 +7,6 @@ import (
 )
 
 // write all routes in this function that will be called in routes.go
-func SetupSharedFileRoutes(router *gin.Engine)  {
+func SetupSharedFileRoutes(router *gin.Engine) {
 	router.GET("/shared-files", handlers.ListSharedFiles)
 }
