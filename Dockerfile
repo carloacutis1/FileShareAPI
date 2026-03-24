@@ -20,10 +20,10 @@ WORKDIR /app
 COPY --from=builder /app/main .
 
 # DEVTEST - MH
-CMD ["echo", "Hello World!"]
+#CMD ["echo", "Hello World!"]
 
 # Listen for HTTP traffic
-#EXPOSE 8080
+EXPOSE 8080
 
 # Runs compiled binary from line 20 - MH
-#CMD ["./main"]
+CMD ["./main"]
