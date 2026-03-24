@@ -1,6 +1,7 @@
 CREATE TABLE shared_files (
-    id TEXT PRIMARY KEY,
-    file_id TEXT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
-    shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+    id INTEGER PRIMARY KEY,
+    file_id INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL,
+    shared_with TEXT NOT NULL,
+    shared_with_id INTEGER NOT NULL
 );
