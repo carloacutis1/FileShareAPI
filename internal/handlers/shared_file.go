@@ -12,9 +12,11 @@ import (
 // returns all shared file tuples in the database as a JSON structure
 func ListSharedFiles(c *gin.Context) {
 	// get the data from the model layer
-	sharedFiles := models.GetSharedFiles()
-
+	sharedFiles, err := models.GetSharedFiles()  // now handles 2 values
+	if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch shared files"})
+			return
+	}
 	// send JSON response
 	c.JSON(http.StatusOK, sharedFiles)
 }
-
