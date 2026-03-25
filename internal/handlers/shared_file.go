@@ -4,7 +4,7 @@ package handlers
 
 import (
 	"net/http"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,7 @@ import (
 // returns all shared file tuples in the database as a JSON structure
 func ListSharedFiles(c *gin.Context) {
 	// get the data from the model layer
-	sharedFiles, err := models.GetSharedFiles()  // now handles 2 values
+	sharedFiles, err := queries.GetSharedFiles()  // now handles 2 values
 	if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch shared files"})
 			return
