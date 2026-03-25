@@ -1,5 +1,12 @@
 # CI/CD Pipeline for automation
 # We will need to edit this pipeline as we code.
+workflow:
+  rules:
+    # run the pipeline for all Merge Requests
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # run the pipeline when code is pushed/merged to the main default branch
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 
 stages:
   # each stage will run to make sure our whole codebase works for each merge request
