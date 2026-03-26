@@ -13,8 +13,8 @@ import (
 // returns all shared file tuples in the database as a JSON structure
 func ListFiles(c *gin.Context) {
 	// get the data from the model layer
-	Files := models.GetFiles()
+	files := models.GetFiles()
 
 	// send JSON response
-	c.JSON(http.StatusOK, Files)
+	c.JSON(http.StatusOK, files)
 }

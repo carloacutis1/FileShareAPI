@@ -23,9 +23,6 @@ func main() {
 	// will list the folders table in JSON
 	router.GET("/folders", handlers.GetFolders)
 
-	// lists all files
-	router.GET("/files", handlers.ListFiles)
-
 	// start the HTTP server
 	log.Fatal(router.Run(":8080"))
 }
