@@ -1,25 +1,65 @@
 package models
 
-// this instantiates a mock file model
-// later, will make into actual databse
-// HC
+import (
+	"time"
+
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
+)
+
+// creates a struct with the same values as the sql table
+
+// SQL model:
+/* 
+
+CREATE TABLE files (
+    id TEXT PRIMARY KEY,
+    folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL,
+    name TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    file_type TEXT,
+    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    description TEXT,
+    uploaded_by TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    tags TEXT,
+    last_accessed TIMESTAMP,
+    checksum TEXT,
+    custom_attributes JSONB
+);
+
+*/
 
 type File struct {
-	ID      int `json:"id"`
-	FileID  int `json:"file_id"`
-	OwnerID int `json:"owner_id"`
+	id               string    `json:"id"`
+	folder_id        string    `json:"folder_id"`
+	name             string    `json:"name"`
+	size             int       `json:"size"`
+	file_type        string    `json:"file_type"`
+	uploaded_at      time.Time `json:"uploaded_at"`
+	description      string    `json:"description"`
+	uploaded_by      string    `json:"uploaded_by"`
+	tags             string    `json:"tags"`
+	last_accessed    time.Time `json:"last_accessed"`
+	checksum         string    `json:"checksum"`
+	custom_attributes string   `json:"custom_attributes"` // JSONB as string for simplicity
 }
 
-// mock data to test functionality
-var files = []File{
-	{ID: 1, FileID: 1001, OwnerID: 42},
-	{ID: 2, FileID: 1002, OwnerID: 42},
-	{ID: 3, FileID: 1003, OwnerID: 99},
-	{ID: 4, FileID: 1004, OwnerID: 100},
-	{ID: 5, FileID: 1005, OwnerID: 101},
-}
+// return the file slice from database
+func GetFiles() ([]File, error) {
+	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, custom_attributes FROM files`
+	rows, err := database.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-// return the file slice
-func GetFiles() []File {
-	return files
+	var files []File
+	for rows.Next() {
+		var f File
+		err := rows.Scan(&f.id, &f.folder_id, &f.name, &f.size, &f.file_type, &f.uploaded_at, &f.description, &f.uploaded_by, &f.tags, &f.last_accessed, &f.checksum, &f.custom_attributes)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, f)
+	}
+	return files, rows.Err()
 }

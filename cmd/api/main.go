@@ -4,12 +4,16 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/routes"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 )
 
 func main() {
+	// initialize database connection
+	database.Init()
+
 	// create a Gin router
 	router := gin.Default()
 
