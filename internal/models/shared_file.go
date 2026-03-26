@@ -3,11 +3,11 @@ package models
 // joshua fouch
 
 type SharedFile struct {
-    ID           int    `json:"id"`
-    FileID       int    `json:"file_id"`
-    OwnerID      int    `json:"owner_id"`
-    SharedWith   string `json:"shared_with"`
-    SharedWithID int    `json:"shared_with_id"`
+    ID           string    `json:"id"`
+    FileID       string    `json:"file_id"`
+    OwnerID      string    `json:"owner_id"`
+    SharedWith   string	   `json:"shared_with"`
+    Permissions	 string	   `json:"permissions"`
 }
 
 // instantiate some SharedFiles in a slice

@@ -7,7 +7,7 @@ import (
 
 func GetSharedFiles() ([]models.SharedFile, error) {
     // run the db query
-    rows, err := database.DB.Query("SELECT id, file_id, owner_id, shared_with, shared_with_id FROM shared_files")
+    rows, err := database.DB.Query("SELECT id, file_id, owner_id, shared_with, permissions FROM shared_files")
     if err != nil {
         return nil, err
     }
@@ -16,7 +16,7 @@ func GetSharedFiles() ([]models.SharedFile, error) {
     var sharedFiles []models.SharedFile
     for rows.Next() {
         var sf models.SharedFile
-        if err := rows.Scan(&sf.ID, &sf.FileID, &sf.OwnerID, &sf.SharedWith, &sf.SharedWithID); err != nil {
+        if err := rows.Scan(&sf.ID, &sf.FileID, &sf.OwnerID, &sf.SharedWith, &sf.Permissions); err != nil {
             return nil, err
         }
         sharedFiles = append(sharedFiles, sf)
