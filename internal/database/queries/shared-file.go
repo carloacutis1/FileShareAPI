@@ -48,6 +48,37 @@ func CreateSharedFile(sf models.SharedFile) error {
 	return err
 }
 
+// UpdateSharedFile updates an existing shared_file record by ID
+func UpdateSharedFile(id string, sf models.SharedFile) error {
+	query := `
+	UPDATE shared_files SET
+		file_id     = $1,
+		owner_id    = $2,
+		shared_with = $3,
+		permissions = $4
+	WHERE id = $5
+	`
+
+	result, err := database.DB.Exec(query,
+		sf.FileID,
+		sf.OwnerID,
+		sf.SharedWith,
+		sf.Permissions,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
 // DeleteSharedFile removes a shared_file record from the database by ID
 func DeleteSharedFile(id string) error {
 	query := `DELETE FROM shared_files WHERE id = $1`

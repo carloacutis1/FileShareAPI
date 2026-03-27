@@ -158,3 +158,44 @@ func TestDeleteSharedFile_DBError(t *testing.T) {
 		t.Fatal("DeleteSharedFile expected an error but got nil")
 	}
 }
+
+// ── UpdateSharedFile ──────────────────────────────────────────────────────────
+
+func TestUpdateSharedFile_Success(t *testing.T) {
+	mock := setupMock(t)
+	sf := sampleSharedFile()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs(sf.FileID, sf.OwnerID, sf.SharedWith, sf.Permissions, "sf_1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	if err := UpdateSharedFile("sf_1", sf); err != nil {
+		t.Fatalf("UpdateSharedFile returned unexpected error: %v", err)
+	}
+}
+
+func TestUpdateSharedFile_NotFound(t *testing.T) {
+	mock := setupMock(t)
+	sf := sampleSharedFile()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs(sf.FileID, sf.OwnerID, sf.SharedWith, sf.Permissions, "nonexistent").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	if err := UpdateSharedFile("nonexistent", sf); err != sql.ErrNoRows {
+		t.Fatalf("UpdateSharedFile: got %v, want sql.ErrNoRows", err)
+	}
+}
+
+func TestUpdateSharedFile_DBError(t *testing.T) {
+	mock := setupMock(t)
+	sf := sampleSharedFile()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs(sf.FileID, sf.OwnerID, sf.SharedWith, sf.Permissions, sf.ID).
+		WillReturnError(sql.ErrConnDone)
+
+	if err := UpdateSharedFile(sf.ID, sf); err == nil {
+		t.Fatal("UpdateSharedFile expected an error but got nil")
+	}
+}
