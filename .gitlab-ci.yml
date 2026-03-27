@@ -43,3 +43,13 @@ lint_stage:
   image: golangci/golangci-lint:v2.9.0
   script:
     - golangci-lint run ./...
+
+test_stage:
+  stage: test
+  image: golang:1.25
+  script:
+    - go test -v ./... -coverprofile=coverage.out
+  artifacts:
+    paths:
+      - coverage.out
+    expire_in: 1 day
