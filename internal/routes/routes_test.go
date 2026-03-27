@@ -74,14 +74,21 @@ func TestSetupFileRoutes(t *testing.T) {
 	}
 }
 
-// TestSetupSharedFileRoutes verifies GET /shared-files is registered.
+// TestSetupSharedFileRoutes verifies all shared-file endpoints are registered.
 func TestSetupSharedFileRoutes(t *testing.T) {
 	setupDummyDB(t)
 
 	router := gin.New()
 	SetupSharedFileRoutes(router)
 
-	assertRegistered(t, router, http.MethodGet, "/shared-files")
+	for _, tc := range []struct{ method, path string }{
+		{http.MethodGet, "/shared-files"},
+		{http.MethodPost, "/shared-files"},
+		{http.MethodPut, "/shared-files/some-id"},
+		{http.MethodDelete, "/shared-files/some-id"},
+	} {
+		assertRegistered(t, router, tc.method, tc.path)
+	}
 }
 
 // TestSetupRoutes verifies that the combined router wires all domains.
@@ -103,6 +110,9 @@ func TestSetupRoutes(t *testing.T) {
 		{http.MethodPut, "/folders/some-id"},
 		{http.MethodDelete, "/folders/some-id"},
 		{http.MethodGet, "/shared-files"},
+		{http.MethodPost, "/shared-files"},
+		{http.MethodPut, "/shared-files/some-id"},
+		{http.MethodDelete, "/shared-files/some-id"},
 	} {
 		assertRegistered(t, router, tc.method, tc.path)
 	}
