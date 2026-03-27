@@ -7,24 +7,24 @@ import (
 
 func GetUsers() ([]models.UserModel, error) {
 	// Run database query
-	rows, err := database.DB.Query("SELECT")
+	rows, err := database.DB.Query("SELECT id, username, email, dob, created_at FROM users")
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = rows.Close() }()
 
-	var UserModel []models.UserModel
+	var userModel []models.UserModel
 	for rows.Next() {
 		var us models.UserModel
 		if err := rows.Scan(&us.ID, &us.Name, &us.Email, &us.DOB, &us.CreatedAt); err != nil {
 			return nil, err
 		}
-		UserModel = append(UserModel, us)
+		userModel = append(userModel, us)
 	}
 
 	// Check for errors from row iteration
-	if err := rows.Err() != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return UserModel, nil
+	return userModel, nil
 }
