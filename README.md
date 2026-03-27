@@ -59,6 +59,11 @@ The project is built with Go 1.25.0 and uses PostgreSQL as the primary data stor
 Ensure the following are installed on your development machine:
 
 - **Docker Desktop** (for running PostgreSQL and containerized services)
+  TO SETUP DOCKER CONTAINER:
+    - sudo systemctl start docker
+    - sudo docker compose up -d --build
+  TO DISABLE CONTAINER:
+    - sudo docker compose down -v
 - **Go 1.25.0+** (for building and running the application)
 - **Git** (for version control)
 - **PostgreSQL client tools** (optional, for direct database interaction)
