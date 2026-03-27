@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"database/sql"
 	"bytes"
+	"database/sql"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
-	"encoding/json"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
@@ -53,69 +53,219 @@ func TestListSharedFiles_DBError(t *testing.T) {
 
 // ── CreateSharedFile ──────────────────────────────────────────────────────────
 func TestCreateSharedFile_BadJSON(t *testing.T) {
-    router := gin.New()
-    router.POST("/shared-files", CreateSharedFile)
-    
-    w := httptest.NewRecorder()
-    req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewBufferString("{bad}"))
-    req.Header.Set("Content-Type", "application/json")
-    router.ServeHTTP(w, req)
-    
-    if w.Code != http.StatusBadRequest {
-        t.Fatalf("expected 400, got %d", w.Code)
-    }
+	router := gin.New()
+	router.POST("/shared-files", CreateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewBufferString("{bad}"))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", w.Code)
+	}
 }
 func TestCreateSharedFile_OK(t *testing.T) {
-    mock := setupDB(t)
-    
-    mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
-        WithArgs("sf_1", "file_1", "user_1", "user_2", "read").
-        WillReturnResult(sqlmock.NewResult(1, 1))
-    
-    body, _ := json.Marshal(map[string]interface{}{
-        "id":          "sf_1",
-        "file_id":     "file_1",
-        "owner_id":    "user_1",
-        "shared_with": "user_2",
-        "permissions": "read",
-    })
-    
-    router := gin.New()
-    router.POST("/shared-files", CreateSharedFile)
-    
-    w := httptest.NewRecorder()
-    req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewReader(body))
-    req.Header.Set("Content-Type", "application/json")
-    router.ServeHTTP(w, req)
-    
-    if w.Code != http.StatusCreated {
-        t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
-    }
+	mock := setupDB(t)
+
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
+		WithArgs("sf_1", "file_1", "user_1", "user_2", "read").
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"id":          "sf_1",
+		"file_id":     "file_1",
+		"owner_id":    "user_1",
+		"shared_with": "user_2",
+		"permissions": "read",
+	})
+
+	router := gin.New()
+	router.POST("/shared-files", CreateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", w.Code, w.Body.String())
+	}
 }
 func TestCreateSharedFile_DBError(t *testing.T) {
-    mock := setupDB(t)
-    
-    mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
-        WithArgs("sf_1", "file_1", "user_1", "user_2", "read").
-        WillReturnError(sql.ErrConnDone)
-    
-    body, _ := json.Marshal(map[string]interface{}{
-        "id":          "sf_1",
-        "file_id":     "file_1",
-        "owner_id":    "user_1",
-        "shared_with": "user_2",
-        "permissions": "read",
-    })
-    
-    router := gin.New()
-    router.POST("/shared-files", CreateSharedFile)
-    
-    w := httptest.NewRecorder()
-    req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewReader(body))
-    req.Header.Set("Content-Type", "application/json")
-    router.ServeHTTP(w, req)
-    
-    if w.Code != http.StatusInternalServerError {
-        t.Fatalf("expected 500, got %d", w.Code)
-    }
+	mock := setupDB(t)
+
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
+		WithArgs("sf_1", "file_1", "user_1", "user_2", "read").
+		WillReturnError(sql.ErrConnDone)
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"id":          "sf_1",
+		"file_id":     "file_1",
+		"owner_id":    "user_1",
+		"shared_with": "user_2",
+		"permissions": "read",
+	})
+
+	router := gin.New()
+	router.POST("/shared-files", CreateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/shared-files", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+}
+
+// ── DeleteSharedFile ──────────────────────────────────────────────────────────
+
+func TestDeleteSharedFile_OK(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
+		WithArgs("sf-1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	router := gin.New()
+	router.DELETE("/shared-files/:id", DeleteSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-1", nil)
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestDeleteSharedFile_NotFound(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
+		WithArgs("sf-999").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	router := gin.New()
+	router.DELETE("/shared-files/:id", DeleteSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-999", nil)
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestDeleteSharedFile_DBError(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
+		WithArgs("sf-1").
+		WillReturnError(sql.ErrConnDone)
+
+	router := gin.New()
+	router.DELETE("/shared-files/:id", DeleteSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-1", nil)
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
+}
+
+// ── UpdateSharedFile ──────────────────────────────────────────────────────────
+
+func TestUpdateSharedFile_BadJSON(t *testing.T) {
+	router := gin.New()
+	router.PUT("/shared-files/:id", UpdateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/shared-files/sf-1", bytes.NewBufferString("{bad}"))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", w.Code)
+	}
+}
+
+func TestUpdateSharedFile_OK(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs("file_1", "user_1", "user_2", "write", "sf-1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"file_id":     "file_1",
+		"owner_id":    "user_1",
+		"shared_with": "user_2",
+		"permissions": "write",
+	})
+
+	router := gin.New()
+	router.PUT("/shared-files/:id", UpdateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/shared-files/sf-1", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestUpdateSharedFile_NotFound(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs("file_1", "user_1", "user_2", "write", "sf-999").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"file_id":     "file_1",
+		"owner_id":    "user_1",
+		"shared_with": "user_2",
+		"permissions": "write",
+	})
+
+	router := gin.New()
+	router.PUT("/shared-files/:id", UpdateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/shared-files/sf-999", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", w.Code)
+	}
+}
+
+func TestUpdateSharedFile_DBError(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE shared_files SET`)).
+		WithArgs("file_1", "user_1", "user_2", "write", "sf-1").
+		WillReturnError(sql.ErrConnDone)
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"file_id":     "file_1",
+		"owner_id":    "user_1",
+		"shared_with": "user_2",
+		"permissions": "write",
+	})
+
+	router := gin.New()
+	router.PUT("/shared-files/:id", UpdateSharedFile)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPut, "/shared-files/sf-1", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", w.Code)
+	}
 }

@@ -38,6 +38,29 @@ func CreateSharedFile(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "shared file created"})
 }
 
+// UpdateSharedFile handles PUT /shared-files/:id
+// updates an existing shared_file record by id
+func UpdateSharedFile(c *gin.Context) {
+	id := c.Param("id")
+
+	var sf models.SharedFile
+	if err := c.ShouldBindJSON(&sf); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := queries.UpdateSharedFile(id, sf); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "shared file not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "shared file updated"})
+}
+
 // DeleteSharedFile handles DELETE /shared-files/:id
 // deletes a shared_file record by id
 func DeleteSharedFile(c *gin.Context) {
