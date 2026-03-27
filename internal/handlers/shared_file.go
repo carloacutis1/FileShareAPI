@@ -5,6 +5,7 @@ package handlers
 import (
 	"net/http"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,4 +20,19 @@ func ListSharedFiles(c *gin.Context) {
 	}
 	// send JSON response
 	c.JSON(http.StatusOK, sharedFiles)
+}
+
+// CreateSharedFile handles POST /shared-files
+// creates a shared_file record in the database
+func CreateSharedFile(c *gin.Context) {
+    var sf models.SharedFile
+    if err := c.ShouldBindJSON(&sf); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+    if err := queries.CreateSharedFile(sf); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(http.StatusCreated, gin.H{"message": "shared file created"})
 }

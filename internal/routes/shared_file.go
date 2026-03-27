@@ -9,4 +9,6 @@ import (
 // write all routes in this function that will be called in routes.go
 func SetupSharedFileRoutes(router *gin.Engine) {
 	router.GET("/shared-files", handlers.ListSharedFiles)
+	router.POST("/shared-files", handlers.CreateSharedFile)
 }
+
