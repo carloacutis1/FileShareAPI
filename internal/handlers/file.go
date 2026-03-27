@@ -1,20 +1,22 @@
 package handlers
 
-// handlers for file domain model
+// HTTP handlers for file domain model
+// This layer handles ONLY HTTP request/response logic
 
 import (
 	"database/sql"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 )
 
 // ListFiles handles GET /files
 // returns all file tuples from the database as a JSON structure
 func ListFiles(c *gin.Context) {
-	// get the data from the model layer
-	files, err := models.GetFiles()
+	// get the data from the queries layer
+	files, err := queries.GetAllFiles()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -33,7 +35,7 @@ func CreateFile(c *gin.Context) {
 		return
 	}
 
-	if err := models.CreateFile(file); err != nil {
+	if err := queries.CreateFile(file); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -52,8 +54,7 @@ func UpdateFile(c *gin.Context) {
 		return
 	}
 
-	file.ID = id
-	if err := models.UpdateFile(file); err != nil {
+	if err := queries.UpdateFile(id, file); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "file not found"})
 			return
@@ -70,7 +71,7 @@ func UpdateFile(c *gin.Context) {
 func DeleteFile(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := models.DeleteFile(id); err != nil {
+	if err := queries.DeleteFile(id); err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "file not found"})
 			return

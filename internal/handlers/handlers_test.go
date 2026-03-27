@@ -139,9 +139,9 @@ func TestCreateFile_OK(t *testing.T) {
 	mock := setupDB(t)
 	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO files`)).
 		WithArgs(
-			"file-99", "", "test.txt", 100, "",
+			"file-99", nil, "test.txt", 100, "",
 			"", "user-1", "", time.Time{},
-			"", "",
+			"", nil,
 		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -169,9 +169,9 @@ func TestCreateFile_DBError(t *testing.T) {
 	mock := setupDB(t)
 	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO files`)).
 		WithArgs(
-			"file-99", "", "test.txt", 100, "",
+			"file-99", nil, "test.txt", 100, "",
 			"", "user-1", "", time.Time{},
-			"", "",
+			"", nil,
 		).
 		WillReturnError(sql.ErrConnDone)
 
@@ -213,8 +213,8 @@ func TestUpdateFile_OK(t *testing.T) {
 	mock := setupDB(t)
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
-			"", "updated.txt", 200, "", "",
-			"", time.Time{}, "", "",
+			nil, "updated.txt", 200, "", "",
+			"", time.Time{}, "", nil,
 			"file-1",
 		).
 		WillReturnResult(sqlmock.NewResult(0, 1))
@@ -238,8 +238,8 @@ func TestUpdateFile_NotFound(t *testing.T) {
 	mock := setupDB(t)
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
-			"", "updated.txt", 0, "", "",
-			"", time.Time{}, "", "",
+			nil, "updated.txt", 0, "", "",
+			"", time.Time{}, "", nil,
 			"file-999",
 		).
 		WillReturnResult(sqlmock.NewResult(0, 0))
