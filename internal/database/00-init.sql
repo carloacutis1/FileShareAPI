@@ -27,8 +27,8 @@ CREATE TABLE files (
 );
 CREATE TABLE shared_files (
     id TEXT PRIMARY KEY,
-    file_id TEXT NOT NULL,
-    owner_id TEXT NOT NULL,
-    shared_with TEXT NOT NULL,
+    file_id TEXT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
+    owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    shared_with TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     permissions TEXT NOT NULL
 );

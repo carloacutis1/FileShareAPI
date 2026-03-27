@@ -6,7 +6,7 @@ type SharedFile struct {
     ID           string    `json:"id"`
     FileID       string    `json:"file_id"`
     OwnerID      string    `json:"owner_id"`
-    SharedWith   string	   `json:"shared_with"`
+    SharedWith   string	   `json:"shared_with"` // this is an id of the user it is shared with
     Permissions	 string	   `json:"permissions"`
 }
 
