@@ -32,3 +32,11 @@ CREATE TABLE shared_files (
     shared_with TEXT NOT NULL,
     permissions TEXT NOT NULL
 );
+-- TEST-----------------
+-- seed a user first (required by uploaded_by foreign key)
+INSERT INTO users (id, username, email) VALUES
+    ('user_1', 'henry', 'henry@example.com');
+
+-- seed a test file referencing that user
+INSERT INTO files (id, folder_id, name, size, file_type, description, uploaded_by, tags, checksum) VALUES
+    ('file_1', 'NULL', 'henry.txt', 10, 'text/plain', 'descr', 'user_1', 'test', 'abc12345');
