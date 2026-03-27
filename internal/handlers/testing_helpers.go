@@ -1,0 +1,31 @@
+package handlers
+
+import (
+	"testing"
+
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
+)
+
+func init() {
+	gin.SetMode(gin.TestMode)
+}
+
+// setupDB replaces database.DB with a sqlmock instance and returns
+// the mock so each test can set expectations on it.
+func setupDB(t *testing.T) sqlmock.Sqlmock {
+	t.Helper()
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("sqlmock.New: %v", err)
+	}
+	t.Cleanup(func() {
+		_ = db.Close()
+		if err := mock.ExpectationsWereMet(); err != nil {
+			t.Errorf("unfulfilled mock expectations: %v", err)
+		}
+	})
+	database.DB = db
+	return mock
+}
