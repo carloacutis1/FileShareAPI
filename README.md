@@ -2,17 +2,17 @@
 
 A comprehensive file storage API backend built with Go and Gin Web Framework, designed to replicate Google Drive functionality with user account management, hierarchical folder structures, file uploads/downloads, and file sharing capabilities.
 
-**Project:** SPR-26 Backend Web-Dev 
+**Project:** SPR-26 Backend Web-Dev
 **Repository:** `gitlab.franciscan.edu/spr-26-backend/basement`
 
 ## Development Team
 
-| Developer     | Primary Responsibility        |
-|---------------|-------------------------------|
-| Matthew Suess | Users domain & API            |
-| Marley Hall   | Folders domain & Docker setup |
-| Henry Cooper  | Files domain & API            |
-| Joshua Fouch  | Shared Files domain & API     |
+| Developer     | Primary Responsibility    |
+| ------------- | ------------------------- |
+| Matthew Suess | Users domain & API        |
+| Marley Hall   | Folders domain & Docker   |
+| Henry Cooper  | Files domain & API        |
+| Joshua Fouch  | Shared Files domain & API |
 
 ## Table of Contents
 
@@ -49,6 +49,7 @@ The project is built with Go 1.25.0 and uses PostgreSQL as the primary data stor
 - **Containerization:** Docker
 
 **Key Dependencies:**
+
 - `github.com/gin-gonic/gin`: REST API framework
 - `github.com/lib/pq`: PostgreSQL driver
 - `go.uber.org/mock`: Mocking utilities for testing
@@ -67,59 +68,89 @@ Ensure the following are installed on your development machine:
 ```
 basement/
 ├── go.mod                  # Go module definition with dependencies
+├── go.sum                  # Dependency checksums
 ├── README.md              # This file
+├── Dockerfile             # Container image definition
+├── docker-compose.yml     # Multi-container Docker application setup
 ├── cmd/
 │   └── api/
-│       └── main.go        # Application entry point and route registration
+│       └── main.go        # Application entry point and server initialization
 ├── internal/
 │   ├── database/
-│   │   ├── init.sql       # Master init file—imports all other SQL files
-│   │   ├── user.sql       # Users table schema
-│   │   ├── folder.sql     # Folders table schema
-│   │   ├── flie.sql       # Files table schema (note: filename typo preserved)
-│   │   ├── shared_file.sql # Shared_files table schema
-│   │   └── file-sample-data.sql # Sample data for testing
+│   │   ├── 00-init.sql    # Master schema initialization file
+│   │   ├── db.go          # Database connection and initialization logic
+│   │   ├── queries/
+│   │   │   └── shared-file.go # Database queries for shared files
+│   │   └── seed-data/
+│   │       ├── 01-user.sql       # Sample user data
+│   │       ├── 02-folder.sql     # Sample folder data
+│   │       ├── 03-file.sql       # Sample file data
+│   │       └── 04-shared_file.sql # Sample shared file data
 │   ├── handlers/
 │   │   ├── user.go        # HTTP handler for user endpoints
 │   │   ├── folder.go      # HTTP handler for folder endpoints
 │   │   ├── file.go        # HTTP handler for file endpoints
 │   │   └── shared_file.go # HTTP handler for shared file endpoints
-│   └── models/
-│       ├── user.go        # User data model and mock data
-│       ├── folder.go      # Folder data model and mock data
-│       ├── file.go        # File data model and mock data
-│       └── shared_file.go # SharedFile data model and mock data
+│   ├── models/
+│   │   ├── user.go        # User data model
+│   │   ├── folder.go      # Folder data model
+│   │   ├── file.go        # File data model
+│   │   └── shared_file.go # SharedFile data model
+│   └── routes/
+│       ├── routes.go      # Main route registration and router setup
+│       ├── user.go        # User route definitions
+│       ├── folder.go      # Folder route definitions
+│       ├── file.go        # File route definitions
+│       └── shared_file.go # Shared file route definitions
 ```
 
 ### Directory Responsibilities
 
 #### `cmd/api/`
-The entry point of the application. Contains the main server initialization, route registration, and HTTP listener setup. The Gin router is instantiated here with all API endpoints configured.
+
+The application entry point. Contains the main server initialization and startup logic. The server configuration and HTTP listener are set up here, delegating route registration to the `internal/routes` package.
 
 #### `internal/database/`
-Contains PostgreSQL table schema definitions and sample data:
-- **init.sql**: Master initialization script that imports all other SQL files in sequence
-- **user.sql**: Defines the `users` table with user account information
-- **folder.sql**: Defines the `folders` table with hierarchical folder structure
-- **flie.sql**: Defines the `files` table (note: filename contains typo "flie" instead of "file")
-- **shared_file.sql**: Defines the `shared_files` table for file sharing relationships
-- **file-sample-data.sql**: Contains INSERT statements with example data for testing
+
+Manages database schema, connections, and queries:
+
+- **00-init.sql**: Master schema initialization script that defines all database tables
+- **db.go**: Database connection pool management and initialization functions
+- **queries/**: Contains domain-specific database query functions (currently shared-file queries)
+- **seed-data/**: SQL files with INSERT statements for development and testing data, numbered for execution order
 
 #### `internal/handlers/`
-HTTP request handlers that bridge Gin routes and the model layer. Each handler:
-1. Extracts data from the models package
-2. Serializes data to JSON
-3. Returns HTTP responses (currently all return 200 OK)
 
-Follows the pattern: Route → Handler → Model → JSON Response
+HTTP request handlers that process API requests and generate responses. Each handler:
+
+1. Receives HTTP requests via Gin context
+2. Interacts with models and database queries
+3. Serializes data to JSON
+4. Returns appropriate HTTP responses with status codes
+
+Follows the pattern: Route → Handler → Database/Model → JSON Response
+
+**Current Implementation:**
+- **Shared files:** Uses database queries from `internal/database/queries/`
+- **Users, files, folders:** Still using mock data from `internal/models/`
 
 #### `internal/models/`
-Contains Go structures and mock data:
-- Defines Go structs matching database schemas
-- Includes mock data slices for initial testing (before database integration)
-- Provides getter functions to retrieve all data for each domain
 
-**Current State:** All models are using in-memory mock data. As development progresses, these will be replaced with actual database queries.
+Contains Go data structures that represent the application's core entities:
+
+- Defines Go structs matching database table schemas
+- Includes JSON struct tags for API serialization
+- Provides type definitions for data passed between handlers and database layers
+
+#### `internal/routes/`
+
+Centralized route definition and registration:
+
+- **routes.go**: Main router setup and initialization, registers all domain routes
+- **Domain route files**: Each file defines HTTP endpoints for a specific domain (users, folders, files, shared files)
+- Maps HTTP methods and paths to their corresponding handlers
+
+Separates routing configuration from handler implementation for better organization.
 
 ---
 
@@ -128,6 +159,7 @@ Contains Go structures and mock data:
 The PostgreSQL database consists of four core tables with defined relationships:
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
     id TEXT PRIMARY KEY,
@@ -136,6 +168,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
 - **Purpose:** Stores user account information
 - **Key Fields:**
   - `id`: Unique user identifier (text-based)
@@ -144,6 +177,7 @@ CREATE TABLE users (
   - `created_at`: Account creation timestamp (auto-set)
 
 ### Folders Table
+
 ```sql
 CREATE TABLE folders (
     id TEXT PRIMARY KEY,
@@ -153,6 +187,7 @@ CREATE TABLE folders (
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 ```
+
 - **Purpose:** Implements hierarchical folder structure for file organization
 - **Key Features:**
   - Self-referential: `parent_folder_id` references another folder's `id`, enabling nested structures
@@ -167,6 +202,7 @@ CREATE TABLE folders (
   ```
 
 ### Files Table
+
 ```sql
 CREATE TABLE files (
     id TEXT PRIMARY KEY,
@@ -183,6 +219,7 @@ CREATE TABLE files (
     custom_attributes JSONB
 );
 ```
+
 - **Purpose:** Stores file metadata and references
 - **Key Fields:**
   - `id`: Unique file identifier
@@ -199,19 +236,27 @@ CREATE TABLE files (
 - **Cascade Behavior:** Deleting `folder_id` sets it to NULL (not cascade), preserving the file; deleting the uploader user cascade-deletes the file
 
 ### Shared Files Table
+
 ```sql
 CREATE TABLE shared_files (
     id TEXT PRIMARY KEY,
-    file_id TEXT NOT NULL REFERENCES files(id) ON DELETE CASCADE,
-    shared_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE
+    file_id TEXT NOT NULL,
+    owner_id TEXT NOT NULL,
+    shared_with TEXT NOT NULL,
+    permissions TEXT NOT NULL
 );
 ```
-- **Purpose:** Implements file sharing—tracks which users have access to which files
-- **Key Concept:** A row in this table grants `user_id` access to `file_id`
-- **Cascade Behavior:** Deleting a file or user removes all sharing relationships
+
+- **Purpose:** Implements file sharing—tracks which users have access to which files and their permission levels
+- **Key Fields:**
+  - `id`: Unique sharing relationship identifier
+  - `file_id`: Reference to the file being shared
+  - `owner_id`: User who owns/is sharing the file
+  - `shared_with`: Email address of the user receiving access
+  - `permissions`: Access level granted (e.g., "read", "write", "admin")
+- **Key Concept:** A row in this table grants the user identified by `shared_with` access to `file_id` with specified `permissions`
 - **Example:**
-  - File 101 (owned by user 1) can be shared with users 5, 6, 7 via separate rows
+  - File 'f1' (owned by user 'u1') can be shared with bob@example.com (read access) and charlie@example.com (write access) via separate rows
 
 ### Schema Relationships
 
@@ -238,6 +283,7 @@ The API is currently in Iteration 1 with basic endpoints returning mock data. Al
 Returns a list of all user models with basic user information.
 
 **Response (200 OK):**
+
 ```json
 [
   {
@@ -264,6 +310,7 @@ Returns a list of all user models with basic user information.
 Returns a list of all folder objects, including parent-child relationships and ownership.
 
 **Response (200 OK):**
+
 ```json
 [
   {
@@ -292,6 +339,7 @@ Returns a list of all folder objects, including parent-child relationships and o
 Returns a list of all file objects with ownership and location information.
 
 **Response (200 OK):**
+
 ```json
 [
   {
@@ -315,29 +363,38 @@ Returns a list of all file objects with ownership and location information.
 
 **GET /shared-files**
 
-Returns a list of all shared file relationships—which files are shared with which users.
+Returns a list of all shared file relationships—which files are shared with which users and their permission levels.
 
 **Response (200 OK):**
+
 ```json
 [
   {
-    "id": 1,
-    "file_id": 101,
-    "owner_id": 1,
-    "shared_with": "alice",
-    "shared_with_id": 5
+    "id": "sf1",
+    "file_id": "f1",
+    "owner_id": "u1",
+    "shared_with": "bob@example.com",
+    "permissions": "read"
   },
   {
-    "id": 2,
-    "file_id": 102,
-    "owner_id": 2,
-    "shared_with": "bob",
-    "shared_with_id": 6
+    "id": "sf2",
+    "file_id": "f1",
+    "owner_id": "u1",
+    "shared_with": "charlie@example.com",
+    "permissions": "write"
   }
 ]
 ```
 
-**Mock Data:** 5 sample shared file entries are defined in [models/shared_file.go](internal/models/shared_file.go)
+**Database Integration:** This endpoint queries the live PostgreSQL database via `internal/database/queries/shared-file.go`
+
+**Error Response (500 Internal Server Error):**
+
+```json
+{
+  "error": "Failed to fetch shared files"
+}
+```
 
 ---
 
@@ -400,17 +457,17 @@ type File struct {
 
 ```go
 type SharedFile struct {
-    ID           int    `json:"id"`
-    FileID       int    `json:"file_id"`
-    OwnerID      int    `json:"owner_id"`
+    ID           string `json:"id"`
+    FileID       string `json:"file_id"`
+    OwnerID      string `json:"owner_id"`
     SharedWith   string `json:"shared_with"`
-    SharedWithID int    `json:"shared_with_id"`
+    Permissions  string `json:"permissions"`
 }
 ```
 
-**Purpose:** Represents a file sharing relationship between a file owner and another user.
+**Purpose:** Represents a file sharing relationship between a file owner and another user, with specific permission levels.
 
-**Mock Data Function:** `GetSharedFiles() []SharedFile`
+**Database Integration:** This model uses live database queries via `internal/database/queries/shared-file.go` instead of mock data.
 
 ---
 
@@ -433,29 +490,68 @@ This fetches all dependencies defined in [go.mod](go.mod), including Gin and Pos
 
 ### 3. Set Up PostgreSQL Database (Docker)
 
+The easiest way to set up the database is using Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Start a PostgreSQL container with the correct configuration
+- Automatically initialize the database schema from `internal/database/00-init.sql`
+- Load sample data for the shared_files table
+- Start the API server connected to the database
+
+**Alternative Manual Setup:**
+
+If you prefer to run PostgreSQL manually:
+
 ```bash
 docker run --name basement-postgres \
-  -e POSTGRES_USER=basement \
-  -e POSTGRES_PASSWORD=your_password \
-  -e POSTGRES_DB=basement \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=database \
   -p 5432:5432 \
   -v basement-data:/var/lib/postgresql/data \
-  -d postgres:latest
+  -d postgres:16-alpine
 ```
 
 Then initialize the schema:
 
 ```bash
-docker exec -i basement-postgres psql -U basement -d basement < internal/database/init.sql
+docker exec -i basement-postgres psql -U postgres -d database < internal/database/00-init.sql
 ```
 
-**Alternative:** Use the [docker-compose.yml](docker-compose.yml) file (if present) for simplified setup.
+### 4. Configure Environment
 
-### 4. Configure Environment (Future)
+The application uses the `DATABASE_URL` environment variable to connect to PostgreSQL.
 
-Create a `.env` file in the project root for database credentials (implementation pending).
+**Default (local development):**
+```
+postgres://postgres:postgres@localhost:5432/database?sslmode=disable
+```
+
+**Docker Compose:** The DATABASE_URL is automatically configured in `docker-compose.yml`
+
+**Custom configuration:** Set the `DATABASE_URL` environment variable before running the application:
+
+```bash
+export DATABASE_URL="postgres://user:password@host:port/dbname?sslmode=disable"
+```
 
 ### 5. Build and Run
+
+**Using Docker Compose (Recommended):**
+
+```bash
+docker-compose up
+```
+
+The API server starts on `http://localhost:8080` with the database automatically connected.
+
+**Manual Build and Run:**
+
+If you prefer to run the Go application directly (ensure PostgreSQL is running separately):
 
 ```bash
 go run cmd/api/main.go
@@ -486,51 +582,61 @@ curl http://localhost:8080/shared-files
 ### Code Organization Principles
 
 1. **Separation of Concerns:**
-   - Models (`internal/models/`) handle data structures and mock data
+   - Models (`internal/models/`) define data structures
+   - Queries (`internal/database/queries/`) handle database operations
    - Handlers (`internal/handlers/`) manage HTTP request/response logic
-   - Database schema (`internal/database/`) defines table structures
-   - Main entrypoint (`cmd/api/`) configures routes only
+   - Routes (`internal/routes/`) define endpoint configurations
+   - Database schema (`internal/database/`) defines table structures and initialization
+   - Main entrypoint (`cmd/api/`) initializes the application
 
 2. **Adding a New Endpoint:**
    1. Define the Go struct in `internal/models/[domain].go`
-   2. Create mock data and a getter function
+   2. Create database query functions in `internal/database/queries/[domain].go`
    3. Create the handler in `internal/handlers/[domain].go`
-   4. Register the route in `cmd/api/main.go`
-   5. Create the SQL schema in `internal/database/[domain].sql`
-   6. Add import to `internal/database/init.sql`
+   4. Register routes in `internal/routes/[domain].go`
+   5. Add route setup call in `internal/routes/routes.go`
+   6. (Schema should already exist in `internal/database/00-init.sql`)
 
 3. **Naming Conventions:**
-   - Files: lowercase with hyphens (e.g., `shared_file.go`)
+   - Files: lowercase with underscores (e.g., `shared_file.go`)
    - Functions: PascalCase for exported, camelCase for private
    - JSON tags: snake_case (e.g., `"parent_folder_id"`)
-   - Database IDs: Prefixed identifiers (e.g., `user_`, `fld_`, `file_`)
+   - Database IDs: Prefixed identifiers (e.g., `u1`, `f1`, `sf1`)
 
 4. **Comments:**
    - Add package-level comments at the top of files
    - Document purpose of functions and non-obvious logic
    - Note future implementation plans (e.g., "will be replaced with database queries")
 
-### Current Status: Iteration 1
+### Current Status: Iteration 2
 
 ✅ **Completed:**
+
 - Basic project structure with Go modules
 - Gin web framework setup
-- 4 mock data models with handler endpoints
+- 4 data models with handler endpoints
 - PostgreSQL schema definitions
-- Simple HTTP JSON responses
+- Docker and Docker Compose configuration
+- Modular routes layer (extracted from main.go)
+- Database connection pool management
+- **Shared files domain:** Full database integration with queries layer
+- Error handling for database operations (shared files)
 
 🔄 **In Progress:**
-- Testing environment validation
-- Docker setup completion
 
-⏳ **Planned (Iteration 2+):**
-- Database integration (replace mock data with queries)
+- Database integration for remaining domains (users, files, folders)
+- Expanding queries layer for all models
+
+⏳ **Planned (Iteration 3+):**
+
+- Complete database integration (replace remaining mock data)
 - Authentication & authorization
-- File upload/download endpoints
-- CRUD operations (Create, Read, Update, Delete)
-- Error handling and validation
+- File upload/download endpoints with actual file storage
+- CRUD operations (Create, Update, Delete) for all resources
+- Input validation and comprehensive error handling
 - Unit and integration tests
 - API documentation (Swagger/OpenAPI)
+- Pagination for list endpoints
 
 ### Debugging Tips
 
@@ -542,5 +648,5 @@ curl http://localhost:8080/shared-files
 
 ---
 
-**Last Updated:** March 25, 2026  
-**Version:** 0.1.0 (Iteration 1)
+**Last Updated:** March 26, 2026  
+**Version:** 0.2.0 (Iteration 2 - Partial Database Integration)
