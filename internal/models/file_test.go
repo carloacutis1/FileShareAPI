@@ -19,7 +19,7 @@ func setupMock(t *testing.T) sqlmock.Sqlmock {
 		t.Fatalf("sqlmock.New: %v", err)
 	}
 	t.Cleanup(func() {
-		db.Close()
+		_ = db.Close()
 		if err := mock.ExpectationsWereMet(); err != nil {
 			t.Errorf("unfulfilled mock expectations: %v", err)
 		}

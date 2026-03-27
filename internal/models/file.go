@@ -78,7 +78,7 @@ func GetFiles() ([]File, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var files []File
 	for rows.Next() {
