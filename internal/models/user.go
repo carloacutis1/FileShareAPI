@@ -5,6 +5,7 @@ type UserModel struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
+	DOB		  string 'json:"dob"'
 	CreatedAt string `json:"createdat"`
 	// Add more fields as needed
 }
