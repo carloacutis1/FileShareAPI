@@ -1,16 +1,92 @@
 package handlers
 
+// HTTP handlers for folder domain model
+// This layer handles ONLY HTTP request/response logic
+
 import (
-    "net/http"
-    "gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
-    "github.com/gin-gonic/gin"
+	"database/sql"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 )
 
-// GetFolders handles GET /folders and returns all folders as JSON.
-func GetFolders(c *gin.Context) {
-    // Get data from model layer
-    folders := models.GetFolders()
+// ListFolders handles GET /folders
+func ListFolders(c *gin.Context) {
+	folders, err := queries.GetAllFolders()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, folders)
+}
 
-    // Send JSON response with HTTP 200 OK
-    c.JSON(http.StatusOK, folders)
+// GetFolder handles GET /folders/:id
+func GetFolder(c *gin.Context) {
+	id := c.Param("id")
+	folder, err := queries.GetFolderByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "folder not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, folder)
+}
+
+// CreateFolder handles POST /folders
+func CreateFolder(c *gin.Context) {
+	var folder models.Folder
+	if err := c.ShouldBindJSON(&folder); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := queries.CreateFolder(folder); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "folder created"})
+}
+
+// UpdateFolder handles PUT /folders/:id
+func UpdateFolder(c *gin.Context) {
+	id := c.Param("id")
+
+	var folder models.Folder
+	if err := c.ShouldBindJSON(&folder); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := queries.UpdateFolder(id, folder); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "folder not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "folder updated"})
+}
+
+// DeleteFolder handles DELETE /folders/:id
+func DeleteFolder(c *gin.Context) {
+	id := c.Param("id")
+
+	if err := queries.DeleteFolder(id); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "folder not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "folder deleted"})
 }

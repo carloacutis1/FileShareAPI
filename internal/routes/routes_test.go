@@ -97,6 +97,11 @@ func TestSetupRoutes(t *testing.T) {
 		{http.MethodPost, "/files"},
 		{http.MethodPut, "/files/some-id"},
 		{http.MethodDelete, "/files/some-id"},
+		{http.MethodGet, "/folders"},
+		{http.MethodGet, "/folders/some-id"},
+		{http.MethodPost, "/folders"},
+		{http.MethodPut, "/folders/some-id"},
+		{http.MethodDelete, "/folders/some-id"},
 		{http.MethodGet, "/shared-files"},
 	} {
 		assertRegistered(t, router, tc.method, tc.path)

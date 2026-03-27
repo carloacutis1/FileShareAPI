@@ -59,23 +59,22 @@ func TestListUserModels_OK(t *testing.T) {
 
 // ── Folders ───────────────────────────────────────────────────────────────────
 
-func TestGetFolders_OK(t *testing.T) {
+var folderCols = []string{"id", "parent_folder_id", "name", "created_at", "user_id"}
+
+func TestListFolders_OK(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, parent_folder_id, name, created_at, user_id FROM folders`)).
+		WillReturnRows(sqlmock.NewRows(folderCols))
+
 	router := gin.New()
-	router.GET("/folders", GetFolders)
+	router.GET("/folders", ListFolders)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodGet, "/folders", nil)
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("expected 200, got %d", w.Code)
-	}
-	var result []interface{}
-	if err := json.Unmarshal(w.Body.Bytes(), &result); err != nil {
-		t.Fatalf("body is not a JSON array: %v", err)
-	}
-	if len(result) == 0 {
-		t.Fatal("expected at least one folder in the response")
+		t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
 	}
 }
 

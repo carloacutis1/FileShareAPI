@@ -4,6 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func SetupRoutes(router *gin.Engine) {
 	SetupFileRoutes(router)
+	SetupFolderRoutes(router)
 	SetupSharedFileRoutes(router)
 	SetupUserRoutes(router)
 }
