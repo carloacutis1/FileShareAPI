@@ -50,7 +50,6 @@ func TestListSharedFiles_DBError(t *testing.T) {
 		t.Fatalf("expected 500, got %d", w.Code)
 	}
 }
-<<<<<<< HEAD
 
 // ── CreateSharedFile ──────────────────────────────────────────────────────────
 func TestCreateSharedFile_BadJSON(t *testing.T) {
@@ -270,5 +269,3 @@ func TestUpdateSharedFile_DBError(t *testing.T) {
 		t.Fatalf("expected 500, got %d", w.Code)
 	}
 }
-=======
->>>>>>> f3e53e8 (Create tests for READ operation handlers.)
