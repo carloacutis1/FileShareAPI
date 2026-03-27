@@ -28,3 +28,21 @@ func GetSharedFiles() ([]models.SharedFile, error) {
     return sharedFiles, nil
 }
 
+// CreateSharedFile inserts a new shared_file record into the database
+func CreateSharedFile(sf models.SharedFile) error {
+    query := `
+        INSERT INTO shared_files (
+            id, file_id, owner_id, shared_with, permissions
+        )
+        VALUES ($1, $2, $3, $4, $5)
+    `
+    
+    _, err := database.DB.Exec(query,
+        sf.ID,
+        sf.FileID,
+        sf.OwnerID,
+        sf.SharedWith,
+        sf.Permissions,
+    )
+    return err
+}

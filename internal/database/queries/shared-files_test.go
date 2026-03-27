@@ -92,3 +92,29 @@ func TestGetSharedFiles_DBError(t *testing.T) {
         t.Fatalf("expected nil slice on error, got %v", sharedFiles)
     }
 }
+
+// ── CreateSharedFile ──────────────────────────────────────────────────────────
+func TestCreateSharedFile_Success(t *testing.T) {
+    mock := setupMock(t)
+    sf := sampleSharedFile()
+    
+    mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
+        WithArgs(sf.ID, sf.FileID, sf.OwnerID, sf.SharedWith, sf.Permissions).
+        WillReturnResult(sqlmock.NewResult(1, 1))
+    
+    if err := CreateSharedFile(sf); err != nil {
+        t.Fatalf("CreateSharedFile returned unexpected error: %v", err)
+    }
+}
+func TestCreateSharedFile_DBError(t *testing.T) {
+    mock := setupMock(t)
+    sf := sampleSharedFile()
+    
+    mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO shared_files`)).
+        WithArgs(sf.ID, sf.FileID, sf.OwnerID, sf.SharedWith, sf.Permissions).
+        WillReturnError(sql.ErrConnDone)
+    
+    if err := CreateSharedFile(sf); err == nil {
+        t.Fatal("CreateSharedFile expected an error but got nil")
+    }
+}
