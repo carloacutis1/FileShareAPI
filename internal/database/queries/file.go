@@ -1,83 +1,190 @@
 package queries
 
-// handlers for file domain model
+// Database query functions for file domain
+// This layer contains ONLY database operations, no HTTP logic
 
 import (
 	"database/sql"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 )
 
-// ListFiles handles GET /files
-// returns all file tuples from the database as a JSON structure
-func ListFiles(c *gin.Context) {
-	// get the data from the model layer
-	files, err := models.GetFiles()
+// GetAllFiles retrieves all files from the database
+func GetAllFiles() ([]models.File, error) {
+	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, custom_attributes FROM files`
+	rows, err := database.DB.Query(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, err
 	}
+	defer func() { _ = rows.Close() }()
 
-	// send JSON response
-	c.JSON(http.StatusOK, files)
-}
-
-// CreateFile handles POST /files
-// creates a file record in the database
-func CreateFile(c *gin.Context) {
-	var file models.File
-	if err := c.ShouldBindJSON(&file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := models.CreateFile(file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "file created"})
-}
-
-// UpdateFile handles PUT /files/:id
-// updates an existing file record by id
-func UpdateFile(c *gin.Context) {
-	id := c.Param("id")
-
-	var file models.File
-	if err := c.ShouldBindJSON(&file); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	file.ID = id
-	if err := models.UpdateFile(file); err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "file not found"})
-			return
+	var files []models.File
+	for rows.Next() {
+		var f models.File
+		// Use sql.Null* for nullable columns to handle NULL from DB
+		var folderID, fileType, description, tags, checksum, customAttributes sql.NullString
+		var lastAccessed sql.NullTime
+		err := rows.Scan(
+			&f.ID, &folderID, &f.Name, &f.Size, &fileType,
+			&f.UploadedAt, &description, &f.UploadedBy, &tags,
+			&lastAccessed, &checksum, &customAttributes,
+		)
+		if err != nil {
+			return nil, err
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		f.FolderID = folderID.String
+		f.FileType = fileType.String
+		f.Description = description.String
+		f.Tags = tags.String
+		f.LastAccessed = lastAccessed.Time
+		f.Checksum = checksum.String
+		f.CustomAttributes = customAttributes.String
+		files = append(files, f)
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "file updated"})
+	return files, rows.Err()
 }
 
-// DeleteFile handles DELETE /files/:id
-// deletes a file record by id
-func DeleteFile(c *gin.Context) {
-	id := c.Param("id")
+// GetFileByID retrieves a single file by its ID
+func GetFileByID(id string) (*models.File, error) {
+	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, custom_attributes FROM files WHERE id = $1`
 
-	if err := models.DeleteFile(id); err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "file not found"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	var f models.File
+	var folderID, fileType, description, tags, checksum, customAttributes sql.NullString
+	var lastAccessed sql.NullTime
+
+	err := database.DB.QueryRow(query, id).Scan(
+		&f.ID, &folderID, &f.Name, &f.Size, &fileType,
+		&f.UploadedAt, &description, &f.UploadedBy, &tags,
+		&lastAccessed, &checksum, &customAttributes,
+	)
+
+	if err != nil {
+		return nil, err
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "file deleted"})
+	f.FolderID = folderID.String
+	f.FileType = fileType.String
+	f.Description = description.String
+	f.Tags = tags.String
+	f.LastAccessed = lastAccessed.Time
+	f.Checksum = checksum.String
+	f.CustomAttributes = customAttributes.String
+
+	return &f, nil
+}
+
+// CreateFile inserts a new file record into the database
+func CreateFile(file models.File) error {
+	query := `
+    INSERT INTO files (
+        id, folder_id, name, size, file_type,
+        description, uploaded_by, tags, last_accessed,
+        checksum, custom_attributes
+    )
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    `
+
+	// Handle nullable fields - convert empty strings to NULL for database
+	var folderID interface{}
+	if file.FolderID == "" {
+		folderID = nil
+	} else {
+		folderID = file.FolderID
+	}
+
+	var customAttrs interface{}
+	if file.CustomAttributes == "" {
+		customAttrs = nil
+	} else {
+		customAttrs = file.CustomAttributes
+	}
+
+	_, err := database.DB.Exec(query,
+		file.ID,
+		folderID,
+		file.Name,
+		file.Size,
+		file.FileType,
+		file.Description,
+		file.UploadedBy,
+		file.Tags,
+		file.LastAccessed,
+		file.Checksum,
+		customAttrs,
+	)
+	return err
+}
+
+// UpdateFile updates an existing file record by ID
+func UpdateFile(id string, file models.File) error {
+	query := `
+    UPDATE files SET
+        folder_id         = $1,
+        name              = $2,
+        size              = $3,
+        file_type         = $4,
+        description       = $5,
+        tags              = $6,
+        last_accessed     = $7,
+        checksum          = $8,
+        custom_attributes = $9
+    WHERE id = $10
+    `
+
+	// Handle nullable fields - convert empty strings to NULL for database
+	var folderID interface{}
+	if file.FolderID == "" {
+		folderID = nil
+	} else {
+		folderID = file.FolderID
+	}
+
+	var customAttrs interface{}
+	if file.CustomAttributes == "" {
+		customAttrs = nil
+	} else {
+		customAttrs = file.CustomAttributes
+	}
+
+	result, err := database.DB.Exec(query,
+		folderID,
+		file.Name,
+		file.Size,
+		file.FileType,
+		file.Description,
+		file.Tags,
+		file.LastAccessed,
+		file.Checksum,
+		customAttrs,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
+// DeleteFile removes a file record from the database by ID
+func DeleteFile(id string) error {
+	query := `DELETE FROM files WHERE id = $1`
+	result, err := database.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }
