@@ -44,6 +44,10 @@ func CreateFolder(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	if folder.ID == "" || folder.Name == "" || folder.UserID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id, name, and user_id are required"})
+		return
+	}
 
 	if err := queries.CreateFolder(folder); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
