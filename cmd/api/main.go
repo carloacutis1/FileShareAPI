@@ -7,7 +7,6 @@ import (
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/routes"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 )
 
 func main() {
@@ -16,9 +15,6 @@ func main() {
 
 	// create a Gin router
 	router := gin.Default()
-
-	// initialize the database
-	database.Init()
 
 	// setup routes
 	routes.SetupRoutes(router)
