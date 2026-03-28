@@ -5,6 +5,14 @@ import (
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 )
 
+// CreateUser inserts a new user record into the database.
+// created_at is omitted so the database default (CURRENT_TIMESTAMP) is used.
+func CreateUser(u models.UserModel) error {
+	query := `INSERT INTO users (id, username, email, dob) VALUES ($1, $2, $3, $4)`
+	_, err := database.DB.Exec(query, u.ID, u.Name, u.Email, u.DOB)
+	return err
+}
+
 func GetUsers() ([]models.UserModel, error) {
 	// Run database query
 	rows, err := database.DB.Query("SELECT id, username, email, CAST(dob AS TEXT), CAST(created_at AS TEXT) FROM users")
