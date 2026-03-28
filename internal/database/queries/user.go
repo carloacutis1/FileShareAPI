@@ -7,7 +7,7 @@ import (
 
 func GetUsers() ([]models.UserModel, error) {
 	// Run database query
-	rows, err := database.DB.Query("SELECT id, username, email, dob, created_at FROM users")
+	rows, err := database.DB.Query("SELECT id, username, email, CAST(dob AS TEXT), CAST(created_at AS TEXT) FROM users")
 	if err != nil {
 		return nil, err
 	}

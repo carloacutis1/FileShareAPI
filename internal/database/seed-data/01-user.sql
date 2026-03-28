@@ -1,5 +1,5 @@
 -- put sample data in here
-INSERT INTO users (id, username, email, dob, created_at) VALUES
+INSERT INTO users (id, username, email, dob) VALUES
 ('user_1', 'John Doe', 'jdoe001@programming.com', '01/01/1900'),
 ('user_2', 'Jane Doe', 'jdoe002@programming.com', '12/31/1999'),
 ('user_3', 'John Programming', 'jprogramming001@programming.com', '04/05/2026'),
