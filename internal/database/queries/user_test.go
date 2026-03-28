@@ -11,10 +11,69 @@ import (
 
 func sampleUser() models.UserModel {
 	return models.UserModel{
-		ID:    "user_1",
-		Name:  "John Doe",
-		Email: "jdoe001@programming.com",
-		DOB:   "01/01/1900",
+		ID:        "user_1",
+		Name:      "John Doe",
+		Email:     "jdoe001@programming.com",
+		DOB:       "01/01/1900",
+		CreatedAt: "2026-01-01 00:00:00",
+	}
+}
+
+// ── GetUsers ──────────────────────────────────────────────────────────────────
+
+func TestGetUsers_Success(t *testing.T) {
+	mock := setupMock(t)
+	u := sampleUser()
+
+	cols := []string{"id", "username", "email", "dob", "created_at"}
+	rows := sqlmock.NewRows(cols).AddRow(u.ID, u.Name, u.Email, u.DOB, u.CreatedAt)
+
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, username, email`)).
+		WillReturnRows(rows)
+
+	users, err := GetUsers()
+	if err != nil {
+		t.Fatalf("GetUsers returned unexpected error: %v", err)
+	}
+	if len(users) != 1 {
+		t.Fatalf("expected 1 user, got %d", len(users))
+	}
+	got := users[0]
+	if got.ID != u.ID {
+		t.Errorf("ID: got %q, want %q", got.ID, u.ID)
+	}
+	if got.Name != u.Name {
+		t.Errorf("Name: got %q, want %q", got.Name, u.Name)
+	}
+	if got.Email != u.Email {
+		t.Errorf("Email: got %q, want %q", got.Email, u.Email)
+	}
+}
+
+func TestGetUsers_Empty(t *testing.T) {
+	mock := setupMock(t)
+
+	cols := []string{"id", "username", "email", "dob", "created_at"}
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, username, email`)).
+		WillReturnRows(sqlmock.NewRows(cols))
+
+	users, err := GetUsers()
+	if err != nil {
+		t.Fatalf("GetUsers returned unexpected error: %v", err)
+	}
+	if len(users) != 0 {
+		t.Fatalf("expected 0 users, got %d", len(users))
+	}
+}
+
+func TestGetUsers_DBError(t *testing.T) {
+	mock := setupMock(t)
+
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, username, email`)).
+		WillReturnError(sql.ErrConnDone)
+
+	if _, err := GetUsers(); err == nil {
+		t.Fatal("GetUsers expected an error but got nil")
 	}
 }
 
