@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// init and setupDB are declared in testing_helpers_test.go and shared across this package.
+// Due to a redeclaration of setupDB causing build errors, it was deleted here and kept in testing_helpers.go (now testing_helpers_test.go). - MH
 
 // ── Folders ───────────────────────────────────────────────────────────────────
 
