@@ -77,6 +77,47 @@ func TestGetUsers_DBError(t *testing.T) {
 	}
 }
 
+// ── UpdateUser ────────────────────────────────────────────────────────────────
+
+func TestUpdateUser_Success(t *testing.T) {
+	mock := setupMock(t)
+	u := sampleUser()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET`)).
+		WithArgs(u.Name, u.Email, u.DOB, u.ID).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	if err := UpdateUser(u.ID, u); err != nil {
+		t.Fatalf("UpdateUser returned unexpected error: %v", err)
+	}
+}
+
+func TestUpdateUser_NotFound(t *testing.T) {
+	mock := setupMock(t)
+	u := sampleUser()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET`)).
+		WithArgs(u.Name, u.Email, u.DOB, "nonexistent").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	if err := UpdateUser("nonexistent", u); err != sql.ErrNoRows {
+		t.Fatalf("UpdateUser: got %v, want sql.ErrNoRows", err)
+	}
+}
+
+func TestUpdateUser_DBError(t *testing.T) {
+	mock := setupMock(t)
+	u := sampleUser()
+
+	mock.ExpectExec(regexp.QuoteMeta(`UPDATE users SET`)).
+		WithArgs(u.Name, u.Email, u.DOB, u.ID).
+		WillReturnError(sql.ErrConnDone)
+
+	if err := UpdateUser(u.ID, u); err == nil {
+		t.Fatal("UpdateUser expected an error but got nil")
+	}
+}
+
 // ── CreateUser ────────────────────────────────────────────────────────────────
 
 func TestCreateUser_Success(t *testing.T) {

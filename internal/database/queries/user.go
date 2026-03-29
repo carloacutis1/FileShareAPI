@@ -1,6 +1,8 @@
 package queries
 
 import (
+	"database/sql"
+
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
 )
@@ -11,6 +13,23 @@ func CreateUser(u models.UserModel) error {
 	query := `INSERT INTO users (id, username, email, dob) VALUES ($1, $2, $3, $4)`
 	_, err := database.DB.Exec(query, u.ID, u.Name, u.Email, u.DOB)
 	return err
+}
+
+// UpdateUser updates an existing user's username, email, and dob by ID.
+func UpdateUser(id string, u models.UserModel) error {
+	query := `UPDATE users SET username = $1, email = $2, dob = $3 WHERE id = $4`
+	result, err := database.DB.Exec(query, u.Name, u.Email, u.DOB, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
 }
 
 func GetUsers() ([]models.UserModel, error) {

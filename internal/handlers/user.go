@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"log"
 	"net/http" // Import HTTP Client & Server Functionality - MH
 
@@ -21,6 +22,27 @@ func ListUserModels(c *gin.Context) {
 	}
 	// Send JSON response with HTTP 200 OK
 	c.JSON(http.StatusOK, items)
+}
+
+// UpdateUserModel handles PUT /users/:id
+// Reads a JSON body and updates the matching user in the database
+func UpdateUserModel(c *gin.Context) {
+	id := c.Param("id")
+	var input models.UserModel
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+	if err := queries.UpdateUser(id, input); err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	} else if err != nil {
+		log.Printf("UpdateUserModel: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
+		return
+	}
+	input.ID = id
+	c.JSON(http.StatusOK, input)
 }
 
 // CreateUserModel handles POST /users
