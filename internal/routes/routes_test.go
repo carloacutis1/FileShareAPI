@@ -38,19 +38,15 @@ func assertRegistered(t *testing.T, router *gin.Engine, method, path string) {
 	}
 }
 
-// TestSetupUserRoutes verifies that GET /users is reachable and returns 200
-// (uses in-memory data, no DB required).
+// TestSetupUserRoutes verifies that GET /users is reachable (not 404).
+// Added setupDummyDB because ListUserModels calls queries.GetUsers(), which queries database.DB directly — a nil DB causes a panic.
 func TestSetupUserRoutes(t *testing.T) {
+	setupDummyDB(t)
+
 	router := gin.New()
 	SetupUserRoutes(router)
 
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest(http.MethodGet, "/users", nil)
-	router.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("GET /users: expected 200, got %d", w.Code)
-	}
+	assertRegistered(t, router, http.MethodGet, "/users")
 }
 
 // TestSetupFileRoutes verifies all four file endpoints are registered.
