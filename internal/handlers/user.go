@@ -24,6 +24,21 @@ func ListUserModels(c *gin.Context) {
 	c.JSON(http.StatusOK, items)
 }
 
+// DeleteUserModel handles DELETE /users/:id
+// Removes the matching user from the database
+func DeleteUserModel(c *gin.Context) {
+	id := c.Param("id")
+	if err := queries.DeleteUser(id); err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	} else if err != nil {
+		log.Printf("DeleteUserModel: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 // UpdateUserModel handles PUT /users/:id
 // Reads a JSON body and updates the matching user in the database
 func UpdateUserModel(c *gin.Context) {

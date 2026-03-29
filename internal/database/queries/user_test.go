@@ -77,6 +77,44 @@ func TestGetUsers_DBError(t *testing.T) {
 	}
 }
 
+// ── DeleteUser ────────────────────────────────────────────────────────────────
+
+func TestDeleteUser_Success(t *testing.T) {
+	mock := setupMock(t)
+
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users WHERE id = $1`)).
+		WithArgs("user_1").
+		WillReturnResult(sqlmock.NewResult(0, 1))
+
+	if err := DeleteUser("user_1"); err != nil {
+		t.Fatalf("DeleteUser returned unexpected error: %v", err)
+	}
+}
+
+func TestDeleteUser_NotFound(t *testing.T) {
+	mock := setupMock(t)
+
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users WHERE id = $1`)).
+		WithArgs("nonexistent").
+		WillReturnResult(sqlmock.NewResult(0, 0))
+
+	if err := DeleteUser("nonexistent"); err != sql.ErrNoRows {
+		t.Fatalf("DeleteUser: got %v, want sql.ErrNoRows", err)
+	}
+}
+
+func TestDeleteUser_DBError(t *testing.T) {
+	mock := setupMock(t)
+
+	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users WHERE id = $1`)).
+		WithArgs("user_1").
+		WillReturnError(sql.ErrConnDone)
+
+	if err := DeleteUser("user_1"); err == nil {
+		t.Fatal("DeleteUser expected an error but got nil")
+	}
+}
+
 // ── UpdateUser ────────────────────────────────────────────────────────────────
 
 func TestUpdateUser_Success(t *testing.T) {

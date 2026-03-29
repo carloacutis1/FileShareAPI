@@ -15,6 +15,23 @@ func CreateUser(u models.UserModel) error {
 	return err
 }
 
+// DeleteUser removes a user record from the database by ID.
+func DeleteUser(id string) error {
+	query := `DELETE FROM users WHERE id = $1`
+	result, err := database.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
 // UpdateUser updates an existing user's username, email, and dob by ID.
 func UpdateUser(id string, u models.UserModel) error {
 	query := `UPDATE users SET username = $1, email = $2, dob = $3 WHERE id = $4`
