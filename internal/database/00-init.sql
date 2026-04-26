@@ -25,6 +25,7 @@ CREATE TABLE files (
     tags TEXT,
     last_accessed TIMESTAMP,
     checksum TEXT,
+    storage_object_key TEXT,
     custom_attributes JSONB
 );
 CREATE TABLE shared_files (

@@ -41,8 +41,9 @@ func sampleFile() models.File {
 		UploadedBy:       "user-1",
 		Tags:             "report,annual",
 		LastAccessed:     time.Time{},
-		Checksum:         "abc123",
-		CustomAttributes: `{"confidential":true}`,
+		Checksum:           "abc123",
+		StorageObjectKey:   "objects/file-1",
+		CustomAttributes:   `{"confidential":true}`,
 	}
 }
 
@@ -56,7 +57,7 @@ func TestCreateFile_Success(t *testing.T) {
 		WithArgs(
 			f.ID, f.FolderID, f.Name, f.Size, f.FileType,
 			f.Description, f.UploadedBy, f.Tags, f.LastAccessed,
-			f.Checksum, f.CustomAttributes,
+			f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -73,7 +74,7 @@ func TestCreateFile_DBError(t *testing.T) {
 		WithArgs(
 			f.ID, f.FolderID, f.Name, f.Size, f.FileType,
 			f.Description, f.UploadedBy, f.Tags, f.LastAccessed,
-			f.Checksum, f.CustomAttributes,
+			f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 		).
 		WillReturnError(sql.ErrConnDone)
 
@@ -91,12 +92,12 @@ func TestGetAllFiles_Success(t *testing.T) {
 	cols := []string{
 		"id", "folder_id", "name", "size", "file_type",
 		"uploaded_at", "description", "uploaded_by", "tags",
-		"last_accessed", "checksum", "custom_attributes",
+		"last_accessed", "checksum", "storage_object_key", "custom_attributes",
 	}
 	rows := sqlmock.NewRows(cols).AddRow(
 		f.ID, f.FolderID, f.Name, f.Size, f.FileType,
 		f.UploadedAt, f.Description, f.UploadedBy, f.Tags,
-		f.LastAccessed, f.Checksum, f.CustomAttributes,
+		f.LastAccessed, f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 	)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, folder_id`)).
@@ -127,7 +128,7 @@ func TestGetAllFiles_Empty(t *testing.T) {
 	cols := []string{
 		"id", "folder_id", "name", "size", "file_type",
 		"uploaded_at", "description", "uploaded_by", "tags",
-		"last_accessed", "checksum", "custom_attributes",
+		"last_accessed", "checksum", "storage_object_key", "custom_attributes",
 	}
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, folder_id`)).
 		WillReturnRows(sqlmock.NewRows(cols))
@@ -161,12 +162,12 @@ func TestGetFileByID_Success(t *testing.T) {
 	cols := []string{
 		"id", "folder_id", "name", "size", "file_type",
 		"uploaded_at", "description", "uploaded_by", "tags",
-		"last_accessed", "checksum", "custom_attributes",
+		"last_accessed", "checksum", "storage_object_key", "custom_attributes",
 	}
 	rows := sqlmock.NewRows(cols).AddRow(
 		f.ID, f.FolderID, f.Name, f.Size, f.FileType,
 		f.UploadedAt, f.Description, f.UploadedBy, f.Tags,
-		f.LastAccessed, f.Checksum, f.CustomAttributes,
+		f.LastAccessed, f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 	)
 
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, folder_id`)).
@@ -204,7 +205,7 @@ func TestUpdateFile_Success(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
 			f.FolderID, f.Name, f.Size, f.FileType, f.Description,
-			f.Tags, f.LastAccessed, f.Checksum, f.CustomAttributes,
+			f.Tags, f.LastAccessed, f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 			f.ID,
 		).
 		WillReturnResult(sqlmock.NewResult(0, 1))
@@ -221,7 +222,7 @@ func TestUpdateFile_NotFound(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
 			f.FolderID, f.Name, f.Size, f.FileType, f.Description,
-			f.Tags, f.LastAccessed, f.Checksum, f.CustomAttributes,
+			f.Tags, f.LastAccessed, f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 			"nonexistent",
 		).
 		WillReturnResult(sqlmock.NewResult(0, 0))
@@ -238,7 +239,7 @@ func TestUpdateFile_DBError(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
 			f.FolderID, f.Name, f.Size, f.FileType, f.Description,
-			f.Tags, f.LastAccessed, f.Checksum, f.CustomAttributes,
+			f.Tags, f.LastAccessed, f.Checksum, f.StorageObjectKey, f.CustomAttributes,
 			f.ID,
 		).
 		WillReturnError(sql.ErrConnDone)

@@ -20,6 +20,7 @@ CREATE TABLE files (
     tags TEXT,
     last_accessed TIMESTAMP,
     checksum TEXT,
+    storage_object_key TEXT,
     custom_attributes JSONB
 );
 
@@ -38,5 +39,6 @@ type File struct {
 	Tags             string    `json:"tags"`
 	LastAccessed     time.Time `json:"last_accessed"`
 	Checksum         string    `json:"checksum"`
-	CustomAttributes string    `json:"custom_attributes"` // JSONB as string for simplicity
+	StorageObjectKey string    `json:"storage_object_key"` // object path within the GCS bucket (empty = no blob yet)
+	CustomAttributes string    `json:"custom_attributes"`  // JSONB as string for simplicity
 }

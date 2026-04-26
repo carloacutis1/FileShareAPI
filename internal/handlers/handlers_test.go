@@ -43,7 +43,7 @@ func TestListFolders_OK(t *testing.T) {
 var fileCols = []string{
 	"id", "folder_id", "name", "size", "file_type",
 	"uploaded_at", "description", "uploaded_by", "tags",
-	"last_accessed", "checksum", "custom_attributes",
+	"last_accessed", "checksum", "storage_object_key", "custom_attributes",
 }
 
 func TestListFiles_OK(t *testing.T) {
@@ -100,7 +100,7 @@ func TestCreateFile_OK(t *testing.T) {
 		WithArgs(
 			"file-99", nil, "test.txt", 100, "",
 			"", "user-1", "", time.Time{},
-			"", nil,
+			"", nil, nil,
 		).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
@@ -130,7 +130,7 @@ func TestCreateFile_DBError(t *testing.T) {
 		WithArgs(
 			"file-99", nil, "test.txt", 100, "",
 			"", "user-1", "", time.Time{},
-			"", nil,
+			"", nil, nil,
 		).
 		WillReturnError(sql.ErrConnDone)
 
@@ -173,7 +173,7 @@ func TestUpdateFile_OK(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
 			nil, "updated.txt", 200, "", "",
-			"", time.Time{}, "", nil,
+			"", time.Time{}, "", nil, nil,
 			"file-1",
 		).
 		WillReturnResult(sqlmock.NewResult(0, 1))
@@ -198,7 +198,7 @@ func TestUpdateFile_NotFound(t *testing.T) {
 	mock.ExpectExec(regexp.QuoteMeta(`UPDATE files SET`)).
 		WithArgs(
 			nil, "updated.txt", 0, "", "",
-			"", time.Time{}, "", nil,
+			"", time.Time{}, "", nil, nil,
 			"file-999",
 		).
 		WillReturnResult(sqlmock.NewResult(0, 0))

@@ -12,7 +12,7 @@ import (
 
 // GetAllFiles retrieves all files from the database
 func GetAllFiles() ([]models.File, error) {
-	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, custom_attributes FROM files`
+	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, storage_object_key, custom_attributes FROM files`
 	rows, err := database.DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -23,12 +23,12 @@ func GetAllFiles() ([]models.File, error) {
 	for rows.Next() {
 		var f models.File
 		// Use sql.Null* for nullable columns to handle NULL from DB
-		var folderID, fileType, description, tags, checksum, customAttributes sql.NullString
+		var folderID, fileType, description, tags, checksum, storageKey, customAttributes sql.NullString
 		var lastAccessed sql.NullTime
 		err := rows.Scan(
 			&f.ID, &folderID, &f.Name, &f.Size, &fileType,
 			&f.UploadedAt, &description, &f.UploadedBy, &tags,
-			&lastAccessed, &checksum, &customAttributes,
+			&lastAccessed, &checksum, &storageKey, &customAttributes,
 		)
 		if err != nil {
 			return nil, err
@@ -39,6 +39,7 @@ func GetAllFiles() ([]models.File, error) {
 		f.Tags = tags.String
 		f.LastAccessed = lastAccessed.Time
 		f.Checksum = checksum.String
+		f.StorageObjectKey = storageKey.String
 		f.CustomAttributes = customAttributes.String
 		files = append(files, f)
 	}
@@ -47,16 +48,16 @@ func GetAllFiles() ([]models.File, error) {
 
 // GetFileByID retrieves a single file by its ID
 func GetFileByID(id string) (*models.File, error) {
-	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, custom_attributes FROM files WHERE id = $1`
+	query := `SELECT id, folder_id, name, size, file_type, uploaded_at, description, uploaded_by, tags, last_accessed, checksum, storage_object_key, custom_attributes FROM files WHERE id = $1`
 
 	var f models.File
-	var folderID, fileType, description, tags, checksum, customAttributes sql.NullString
+	var folderID, fileType, description, tags, checksum, storageKey, customAttributes sql.NullString
 	var lastAccessed sql.NullTime
 
 	err := database.DB.QueryRow(query, id).Scan(
 		&f.ID, &folderID, &f.Name, &f.Size, &fileType,
 		&f.UploadedAt, &description, &f.UploadedBy, &tags,
-		&lastAccessed, &checksum, &customAttributes,
+		&lastAccessed, &checksum, &storageKey, &customAttributes,
 	)
 
 	if err != nil {
@@ -69,6 +70,7 @@ func GetFileByID(id string) (*models.File, error) {
 	f.Tags = tags.String
 	f.LastAccessed = lastAccessed.Time
 	f.Checksum = checksum.String
+	f.StorageObjectKey = storageKey.String
 	f.CustomAttributes = customAttributes.String
 
 	return &f, nil
@@ -80,9 +82,9 @@ func CreateFile(file models.File) error {
     INSERT INTO files (
         id, folder_id, name, size, file_type,
         description, uploaded_by, tags, last_accessed,
-        checksum, custom_attributes
+        checksum, storage_object_key, custom_attributes
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
     `
 
 	// Handle nullable fields - convert empty strings to NULL for database
@@ -91,6 +93,13 @@ func CreateFile(file models.File) error {
 		folderID = nil
 	} else {
 		folderID = file.FolderID
+	}
+
+	var storageKey interface{}
+	if file.StorageObjectKey == "" {
+		storageKey = nil
+	} else {
+		storageKey = file.StorageObjectKey
 	}
 
 	var customAttrs interface{}
@@ -111,6 +120,7 @@ func CreateFile(file models.File) error {
 		file.Tags,
 		file.LastAccessed,
 		file.Checksum,
+		storageKey,
 		customAttrs,
 	)
 	return err
@@ -128,8 +138,9 @@ func UpdateFile(id string, file models.File) error {
         tags              = $6,
         last_accessed     = $7,
         checksum          = $8,
-        custom_attributes = $9
-    WHERE id = $10
+        storage_object_key = $9,
+        custom_attributes = $10
+    WHERE id = $11
     `
 
 	// Handle nullable fields - convert empty strings to NULL for database
@@ -138,6 +149,13 @@ func UpdateFile(id string, file models.File) error {
 		folderID = nil
 	} else {
 		folderID = file.FolderID
+	}
+
+	var storageKey interface{}
+	if file.StorageObjectKey == "" {
+		storageKey = nil
+	} else {
+		storageKey = file.StorageObjectKey
 	}
 
 	var customAttrs interface{}
@@ -156,6 +174,7 @@ func UpdateFile(id string, file models.File) error {
 		file.Tags,
 		file.LastAccessed,
 		file.Checksum,
+		storageKey,
 		customAttrs,
 		id,
 	)
