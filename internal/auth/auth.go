@@ -149,7 +149,9 @@ c.JSON(200, gin.H{"token": token})
 }
 
 func generateID() string {
-bytes := make([]byte, 16)
-rand.Read(bytes)
-return hex.EncodeToString(bytes)
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(bytes)
 }
