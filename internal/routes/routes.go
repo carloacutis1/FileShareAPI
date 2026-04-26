@@ -13,4 +13,5 @@ func SetupRoutes(router *gin.Engine, blobStore storage.ObjectStore) {
 	SetupFolderRoutes(router)
 	SetupSharedFileRoutes(router)
 	SetupUserRoutes(router)
+	SetupSearchRoutes(router)
 }
