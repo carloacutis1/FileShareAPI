@@ -2,11 +2,12 @@ package models
 
 // UserModel to store user data below
 type UserModel struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	DOB       string `json:"dob"`
-	CreatedAt string `json:"createdat"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	PasswordHash string `json:"password_hash"`
+	DOB          string `json:"dob"`
+	CreatedAt    string `json:"createdat"`
 	// Add more fields as needed
 }
 

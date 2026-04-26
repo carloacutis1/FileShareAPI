@@ -20,8 +20,8 @@ var DB *sql.DB
 func Init() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		// Default local Postgres on port 5432 — change user/password/db to match your machine
-		dsn = "postgres://postgres:postgres@localhost:5432/database?sslmode=disable"
+		// Default local Postgres on port 5433 — change user/password/db to match your machine
+		dsn = "postgres://postgres:postgres@localhost:5433/database?sslmode=disable"
 	}
 
 	db, err := sql.Open("postgres", dsn)
