@@ -7,9 +7,11 @@ import (
 )
 
 // write all routes in this function that will be called in routes.go
-func SetupFileRoutes(router *gin.Engine) {
-	router.GET("/files", handlers.ListFiles)
-	router.POST("/files", handlers.CreateFile)
-	router.PUT("/files/:id", handlers.UpdateFile)
-	router.DELETE("/files/:id", handlers.DeleteFile)
+func SetupFileRoutes(router *gin.Engine, h *handlers.FileHandler) {
+	router.GET("/files", h.ListFiles)
+	router.POST("/files", h.CreateFile)
+	router.PUT("/files/:id", h.UpdateFile)
+	router.DELETE("/files/:id", h.DeleteFile)
+	router.PUT("/files/:id/content", h.UploadFileContent)
+	router.GET("/files/:id/content", h.DownloadFileContent)
 }

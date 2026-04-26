@@ -8,6 +8,8 @@ import (
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
 	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
+	"gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
 )
 
 func init() {
@@ -58,13 +60,16 @@ func TestSetupFileRoutes(t *testing.T) {
 	setupDummyDB(t)
 
 	router := gin.New()
-	SetupFileRoutes(router)
+	fh := handlers.NewFileHandler(storage.NewMemoryStore())
+	SetupFileRoutes(router, fh)
 
 	for _, tc := range []struct{ method, path string }{
 		{http.MethodGet, "/files"},
 		{http.MethodPost, "/files"},
 		{http.MethodPut, "/files/some-id"},
 		{http.MethodDelete, "/files/some-id"},
+		{http.MethodPut, "/files/some-id/content"},
+		{http.MethodGet, "/files/some-id/content"},
 	} {
 		assertRegistered(t, router, tc.method, tc.path)
 	}
@@ -92,7 +97,7 @@ func TestSetupRoutes(t *testing.T) {
 	setupDummyDB(t)
 
 	router := gin.New()
-	SetupRoutes(router)
+	SetupRoutes(router, storage.NewMemoryStore())
 
 	for _, tc := range []struct{ method, path string }{
 		{http.MethodGet, "/users"},
@@ -100,6 +105,8 @@ func TestSetupRoutes(t *testing.T) {
 		{http.MethodPost, "/files"},
 		{http.MethodPut, "/files/some-id"},
 		{http.MethodDelete, "/files/some-id"},
+		{http.MethodPut, "/files/some-id/content"},
+		{http.MethodGet, "/files/some-id/content"},
 		{http.MethodGet, "/folders"},
 		{http.MethodGet, "/folders/some-id"},
 		{http.MethodPost, "/folders"},
