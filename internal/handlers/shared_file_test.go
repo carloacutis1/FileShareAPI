@@ -122,14 +122,25 @@ func TestCreateSharedFile_DBError(t *testing.T) {
 
 // ── DeleteSharedFile ──────────────────────────────────────────────────────────
 
+func authAs(userID string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("user_id", userID)
+		c.Next()
+	}
+}
+
 func TestDeleteSharedFile_OK(t *testing.T) {
 	mock := setupDB(t)
+	sfCols := []string{"id", "file_id", "owner_id", "shared_with", "permissions"}
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, file_id, owner_id, shared_with, permissions FROM shared_files WHERE id = $1`)).
+		WithArgs("sf-1").
+		WillReturnRows(sqlmock.NewRows(sfCols).AddRow("sf-1", "file_1", "user_1", "user_2", "read"))
 	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
 		WithArgs("sf-1").
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
 	router := gin.New()
-	router.DELETE("/shared-files/:id", DeleteSharedFile)
+	router.DELETE("/shared-files/:id", authAs("user_1"), DeleteSharedFile)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-1", nil)
@@ -142,12 +153,12 @@ func TestDeleteSharedFile_OK(t *testing.T) {
 
 func TestDeleteSharedFile_NotFound(t *testing.T) {
 	mock := setupDB(t)
-	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, file_id, owner_id, shared_with, permissions FROM shared_files WHERE id = $1`)).
 		WithArgs("sf-999").
-		WillReturnResult(sqlmock.NewResult(0, 0))
+		WillReturnError(sql.ErrNoRows)
 
 	router := gin.New()
-	router.DELETE("/shared-files/:id", DeleteSharedFile)
+	router.DELETE("/shared-files/:id", authAs("user_1"), DeleteSharedFile)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-999", nil)
@@ -160,12 +171,16 @@ func TestDeleteSharedFile_NotFound(t *testing.T) {
 
 func TestDeleteSharedFile_DBError(t *testing.T) {
 	mock := setupDB(t)
+	sfCols := []string{"id", "file_id", "owner_id", "shared_with", "permissions"}
+	mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, file_id, owner_id, shared_with, permissions FROM shared_files WHERE id = $1`)).
+		WithArgs("sf-1").
+		WillReturnRows(sqlmock.NewRows(sfCols).AddRow("sf-1", "file_1", "user_1", "user_2", "read"))
 	mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM shared_files WHERE id = $1`)).
 		WithArgs("sf-1").
 		WillReturnError(sql.ErrConnDone)
 
 	router := gin.New()
-	router.DELETE("/shared-files/:id", DeleteSharedFile)
+	router.DELETE("/shared-files/:id", authAs("user_1"), DeleteSharedFile)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodDelete, "/shared-files/sf-1", nil)

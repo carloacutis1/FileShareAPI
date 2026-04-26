@@ -71,15 +71,16 @@ func TestCreateUserModel_BadJSON(t *testing.T) {
 
 func TestCreateUserModel_OK(t *testing.T) {
 	mock := setupDB(t)
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, dob)`)).
-		WithArgs("user_6", "Test User", "test@example.com", "01/01/2000").
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, password_hash, dob)`)).
+		WithArgs("user_6", "Test User", "test@example.com", "hashedpw", "01/01/2000").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	body, _ := json.Marshal(map[string]interface{}{
-		"id":    "user_6",
-		"name":  "Test User",
-		"email": "test@example.com",
-		"dob":   "01/01/2000",
+		"id":            "user_6",
+		"name":          "Test User",
+		"email":         "test@example.com",
+		"password_hash": "hashedpw",
+		"dob":           "01/01/2000",
 	})
 
 	router := gin.New()
@@ -97,15 +98,16 @@ func TestCreateUserModel_OK(t *testing.T) {
 
 func TestCreateUserModel_DBError(t *testing.T) {
 	mock := setupDB(t)
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, dob)`)).
-		WithArgs("user_6", "Test User", "test@example.com", "01/01/2000").
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, password_hash, dob)`)).
+		WithArgs("user_6", "Test User", "test@example.com", "hashedpw", "01/01/2000").
 		WillReturnError(sql.ErrConnDone)
 
 	body, _ := json.Marshal(map[string]interface{}{
-		"id":    "user_6",
-		"name":  "Test User",
-		"email": "test@example.com",
-		"dob":   "01/01/2000",
+		"id":            "user_6",
+		"name":          "Test User",
+		"email":         "test@example.com",
+		"password_hash": "hashedpw",
+		"dob":           "01/01/2000",
 	})
 
 	router := gin.New()

@@ -11,11 +11,12 @@ import (
 
 func sampleUser() models.UserModel {
 	return models.UserModel{
-		ID:        "user_1",
-		Name:      "John Doe",
-		Email:     "jdoe001@programming.com",
-		DOB:       "01/01/1900",
-		CreatedAt: "2026-01-01 00:00:00",
+		ID:           "user_1",
+		Name:         "John Doe",
+		Email:        "jdoe001@programming.com",
+		PasswordHash: "hashedpassword",
+		DOB:          "01/01/1900",
+		CreatedAt:    "2026-01-01 00:00:00",
 	}
 }
 
@@ -163,8 +164,8 @@ func TestCreateUser_Success(t *testing.T) {
 	u := sampleUser()
 
 	// Expect the INSERT with the four user fields in order
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, dob)`)).
-		WithArgs(u.ID, u.Name, u.Email, u.DOB).
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, password_hash, dob)`)).
+		WithArgs(u.ID, u.Name, u.Email, u.PasswordHash, u.DOB).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	if err := CreateUser(u); err != nil {
@@ -177,8 +178,8 @@ func TestCreateUser_DBError(t *testing.T) {
 	u := sampleUser()
 
 	// Simulate a connection failure
-	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, dob)`)).
-		WithArgs(u.ID, u.Name, u.Email, u.DOB).
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users (id, username, email, password_hash, dob)`)).
+		WithArgs(u.ID, u.Name, u.Email, u.PasswordHash, u.DOB).
 		WillReturnError(sql.ErrConnDone)
 
 	if err := CreateUser(u); err == nil {
