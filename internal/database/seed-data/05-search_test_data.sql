@@ -30,4 +30,25 @@ INSERT INTO files (id, folder_id, name, size, file_type, uploaded_by, tags) VALU
 ('file_112', 'f_secret', 'Secret_Passwords.txt', 200, 'TXT', 'user_1', 'private,security'),
 ('file_113', 'f_work', 'Annual_Report_Draft.docx', 120000, 'DOCX', 'user_1', 'work,report'),
 ('file_114', 'f_projects', 'Alpha_Architecture.drawio', 35000, 'DRAWIO', 'user_1', 'work,diagram'),
-('file_115', 'f_source', 'go.mod', 150, 'MOD', 'user_1', 'code,config');
+('file_115', 'f_source', 'go.mod', 150, 'MOD', 'user_1', 'code,config'),
+
+-- Data for Jane Doe (user_2)
+('file_201', NULL, 'Jane_Resume.pdf', 45000, 'PDF', 'user_2', 'career,personal'),
+('file_202', NULL, 'Budget_Sheet_Jane.xlsx', 15000, 'XLSX', 'user_2', 'finance'),
+
+-- Data for John Programming (user_3)
+('file_301', NULL, 'Compiler_Notes.txt', 1024, 'TXT', 'user_3', 'education,programming'),
+('file_302', NULL, 'Rust_Tutorial.mp4', 85000000, 'MP4', 'user_3', 'learning,video'),
+
+-- Data for Noname (user_4)
+('file_401', NULL, 'Battle_Plan.md', 5000, 'MD', 'user_4', 'strategy,secret'),
+
+-- Data for Just Sayin (user_5)
+('file_501', NULL, 'Inspirational_Quote.png', 250000, 'PNG', 'user_5', 'social');
+
+-- Shared Files (Cross-user access)
+INSERT INTO shared_files (id, file_id, owner_id, shared_with, permissions) VALUES
+('sf_3', 'file_103', 'user_1', 'user_3', 'read'), -- user_1 shares code with user_3
+('sf_4', 'file_401', 'user_4', 'user_1', 'write'), -- user_4 shares battle plan with user_1
+('sf_5', 'file_301', 'user_3', 'user_2', 'read'); -- user_3 shares notes with user_2
+
