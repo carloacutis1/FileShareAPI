@@ -9,11 +9,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # main entry point
       - ./internal/database/00-init.sql:/docker-entrypoint-initdb.d/00-init.sql
-      # sample data (disabled until seed files include password_hash)
-      #- ./internal/database/seed-data/01-user.sql:/docker-entrypoint-initdb.d/01-user.sql
-      #- ./internal/database/seed-data/02-folder.sql:/docker-entrypoint-initdb.d/02-folder.sql
-      #- ./internal/database/seed-data/03-file.sql:/docker-entrypoint-initdb.d/03-file.sql
-      #- ./internal/database/seed-data/04-shared_file.sql:/docker-entrypoint-initdb.d/04-shared_file.sql
+      - ./internal/database/seed-data/00-user.sql:/docker-entrypoint-initdb.d/01-user.sql
+      - ./internal/database/seed-data/02-folder.sql:/docker-entrypoint-initdb.d/02-folder.sql
+      - ./internal/database/seed-data/03-file.sql:/docker-entrypoint-initdb.d/03-file.sql
+      - ./internal/database/seed-data/04-shared_file.sql:/docker-entrypoint-initdb.d/04-shared_file.sql
+      - ./internal/database/seed-data/05-search_test_data.sql:/docker-entrypoint-initdb.d/05-search_test_data.sql
     ports:
       - "5433:5432"
     healthcheck:
