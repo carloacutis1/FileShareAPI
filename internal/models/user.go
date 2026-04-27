@@ -5,10 +5,9 @@ type UserModel struct {
 	ID           string `json:"id"`
 	Name         string `json:"name"`
 	Email        string `json:"email"`
-	PasswordHash string `json:"password_hash"`
 	DOB          string `json:"dob"`
+	PasswordHash string `json:"password_hash"`
 	CreatedAt    string `json:"createdat"`
-	// Add more fields as needed
 }
 
 var userModels = []UserModel{

@@ -10,8 +10,8 @@ import (
 // CreateUser inserts a new user record into the database.
 // created_at is omitted so the database default (CURRENT_TIMESTAMP) is used.
 func CreateUser(u models.UserModel) error {
-	query := `INSERT INTO users (id, username, email, password_hash, dob) VALUES ($1, $2, $3, $4, $5)`
-	_, err := database.DB.Exec(query, u.ID, u.Name, u.Email, u.PasswordHash, u.DOB)
+	query := `INSERT INTO users (id, username, email, dob, password_hash) VALUES ($1, $2, $3, $4, $5)`
+	_, err := database.DB.Exec(query, u.ID, u.Name, u.Email, u.DOB, u.PasswordHash)
 	return err
 }
 
@@ -71,12 +71,4 @@ func GetUsers() ([]models.UserModel, error) {
 		return nil, err
 	}
 	return userModel, nil
-}
-
-// GetUserByEmail retrieves a user by email address with password hash
-func GetUserByEmail(email string) (models.UserModel, error) {
-	query := `SELECT id, username, email, password_hash, CAST(dob AS TEXT), CAST(created_at AS TEXT) FROM users WHERE email = $1`
-	var u models.UserModel
-	err := database.DB.QueryRow(query, email).Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.DOB, &u.CreatedAt)
-	return u, err
 }
