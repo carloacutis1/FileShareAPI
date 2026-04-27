@@ -51,4 +51,3 @@ INSERT INTO shared_files (id, file_id, owner_id, shared_with, permissions) VALUE
 ('sf_3', 'file_103', 'user_1', 'user_3', 'read'), -- user_1 shares code with user_3
 ('sf_4', 'file_401', 'user_4', 'user_1', 'write'), -- user_4 shares battle plan with user_1
 ('sf_5', 'file_301', 'user_3', 'user_2', 'read'); -- user_3 shares notes with user_2
-
