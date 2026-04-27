@@ -5,12 +5,15 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"strings"
 	"testing"
+	"net/textproto"
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
@@ -160,6 +163,114 @@ func TestCreateFile_DBError(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Fatalf("expected 500, got %d", w.Code)
+	}
+}
+
+func TestCreateFileWithContent_OK(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO files`)).
+		WithArgs(
+			"upload-1", nil, "pic.avif", 5, "image/avif",
+			"", "user-1", "", time.Time{},
+			"", "files/upload-1", nil,
+		).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+
+	var body bytes.Buffer
+	wr := multipart.NewWriter(&body)
+	_ = wr.WriteField("id", "upload-1")
+	_ = wr.WriteField("uploaded_by", "user-1")
+	_ = wr.WriteField("name", "pic.avif")
+	hdr := make(textproto.MIMEHeader)
+	hdr.Set("Content-Disposition", `form-data; name="file"; filename="pic.avif"`)
+	hdr.Set("Content-Type", "image/avif")
+	part, err := wr.CreatePart(hdr)
+	if err != nil {
+		t.Fatalf("CreateFormFile: %v", err)
+	}
+	if _, err := part.Write([]byte("abcde")); err != nil {
+		t.Fatalf("Write file part: %v", err)
+	}
+	if err := wr.Close(); err != nil {
+		t.Fatalf("Close multipart: %v", err)
+	}
+
+	mem := storage.NewMemoryStore()
+	fh := NewFileHandler(mem)
+	router := gin.New()
+	router.POST("/files/upload", fh.CreateFileWithContent)
+
+	rec := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/files/upload", &body)
+	req.Header.Set("Content-Type", wr.FormDataContentType())
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+	rc, err := mem.Get(context.Background(), "files/upload-1")
+	if err != nil {
+		t.Fatalf("blob not written: %v", err)
+	}
+	defer func() { _ = rc.Close() }()
+	got, _ := io.ReadAll(rc)
+	if string(got) != "abcde" {
+		t.Fatalf("blob content: got %q", got)
+	}
+}
+
+func TestCreateFileWithContent_MissingFile(t *testing.T) {
+	var body bytes.Buffer
+	wr := multipart.NewWriter(&body)
+	_ = wr.WriteField("id", "upload-1")
+	_ = wr.WriteField("uploaded_by", "user-1")
+	_ = wr.Close()
+
+	fh := NewFileHandler(storage.NewMemoryStore())
+	router := gin.New()
+	router.POST("/files/upload", fh.CreateFileWithContent)
+
+	rec := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/files/upload", &body)
+	req.Header.Set("Content-Type", wr.FormDataContentType())
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestCreateFileWithContent_DBError_CompensatesBlob(t *testing.T) {
+	mock := setupDB(t)
+	mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO files`)).
+		WillReturnError(fmt.Errorf("insert failed"))
+
+	var body bytes.Buffer
+	wr := multipart.NewWriter(&body)
+	_ = wr.WriteField("id", "upload-2")
+	_ = wr.WriteField("uploaded_by", "user-1")
+	part, err := wr.CreateFormFile("file", "doc.txt")
+	if err != nil {
+		t.Fatalf("CreateFormFile: %v", err)
+	}
+	_, _ = part.Write([]byte("hello"))
+	_ = wr.Close()
+
+	mem := storage.NewMemoryStore()
+	fh := NewFileHandler(mem)
+	router := gin.New()
+	router.POST("/files/upload", fh.CreateFileWithContent)
+
+	rec := httptest.NewRecorder()
+	req, _ := http.NewRequest(http.MethodPost, "/files/upload", &body)
+	req.Header.Set("Content-Type", wr.FormDataContentType())
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Fatalf("expected 500, got %d", rec.Code)
+	}
+	if _, err := mem.Get(context.Background(), "files/upload-2"); err == nil {
+		t.Fatal("expected blob cleanup on DB failure")
 	}
 }
 

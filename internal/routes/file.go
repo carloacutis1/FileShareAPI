@@ -10,6 +10,7 @@ import (
 func SetupFileRoutes(router *gin.Engine, h *handlers.FileHandler) {
 	router.GET("/files", h.ListFiles)
 	router.POST("/files", h.CreateFile)
+	router.POST("/files/upload", h.CreateFileWithContent)
 	router.PUT("/files/:id", h.UpdateFile)
 	router.DELETE("/files/:id", h.DeleteFile)
 	router.PUT("/files/:id/content", h.UploadFileContent)

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,74 @@ func (h *FileHandler) CreateFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "file created"})
+}
+
+// CreateFileWithContent handles POST /files/upload (multipart/form-data).
+// It creates file metadata and uploads blob bytes in one request.
+func (h *FileHandler) CreateFileWithContent(c *gin.Context) {
+	if err := c.Request.ParseMultipartForm(maxFileUploadBytes); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid multipart form"})
+		return
+	}
+
+	id := c.PostForm("id")
+	uploadedBy := c.PostForm("uploaded_by")
+	if id == "" || uploadedBy == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id and uploaded_by are required"})
+		return
+	}
+
+	formFile, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is required"})
+		return
+	}
+
+	data, contentType, err := readMultipartFile(formFile)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "could not read uploaded file"})
+		return
+	}
+	if len(data) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "file is empty"})
+		return
+	}
+
+	name := c.PostForm("name")
+	if name == "" {
+		name = formFile.Filename
+	}
+	key := fmt.Sprintf("files/%s", id)
+
+	file := models.File{
+		ID:               id,
+		FolderID:         c.PostForm("folder_id"),
+		Name:             name,
+		Size:             len(data),
+		FileType:         contentType,
+		Description:      c.PostForm("description"),
+		UploadedBy:       uploadedBy,
+		Tags:             c.PostForm("tags"),
+		Checksum:         c.PostForm("checksum"),
+		StorageObjectKey: key,
+		CustomAttributes: c.PostForm("custom_attributes"),
+	}
+
+	if err := h.Blob.Put(c.Request.Context(), key, bytes.NewReader(data), int64(len(data)), contentType); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := queries.CreateFile(file); err != nil {
+		_ = h.Blob.Delete(c.Request.Context(), key)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "file and content uploaded",
+		"id":      id,
+	})
 }
 
 // UpdateFile handles PUT /files/:id
@@ -200,4 +269,29 @@ func (h *FileHandler) DownloadFileContent(c *gin.Context) {
 	if _, err := io.Copy(c.Writer, rc); err != nil {
 		return
 	}
+}
+
+func readMultipartFile(formFile *multipart.FileHeader) ([]byte, string, error) {
+	f, err := formFile.Open()
+	if err != nil {
+		return nil, "", err
+	}
+	defer func() { _ = f.Close() }()
+
+	data, err := io.ReadAll(io.LimitReader(f, maxFileUploadBytes+1))
+	if err != nil {
+		return nil, "", err
+	}
+	if len(data) > maxFileUploadBytes {
+		return nil, "", fmt.Errorf("file exceeds max upload size")
+	}
+
+	contentType := formFile.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = http.DetectContentType(data)
+	}
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	return data, contentType, nil
 }

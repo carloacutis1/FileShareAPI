@@ -66,6 +66,7 @@ func TestSetupFileRoutes(t *testing.T) {
 	for _, tc := range []struct{ method, path string }{
 		{http.MethodGet, "/files"},
 		{http.MethodPost, "/files"},
+		{http.MethodPost, "/files/upload"},
 		{http.MethodPut, "/files/some-id"},
 		{http.MethodDelete, "/files/some-id"},
 		{http.MethodPut, "/files/some-id/content"},
@@ -103,6 +104,7 @@ func TestSetupRoutes(t *testing.T) {
 		{http.MethodGet, "/users"},
 		{http.MethodGet, "/files"},
 		{http.MethodPost, "/files"},
+		{http.MethodPost, "/files/upload"},
 		{http.MethodPut, "/files/some-id"},
 		{http.MethodDelete, "/files/some-id"},
 		{http.MethodPut, "/files/some-id/content"},
