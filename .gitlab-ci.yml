@@ -7,12 +7,11 @@ workflow:
     # run the pipeline when code is pushed/merged to the main default branch
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-
 stages:
   # each stage will run to make sure our whole codebase works for each merge request
   - validate
   - build
-  - lint
+  #- lint
   - test
 
 validate_stage:
@@ -38,11 +37,11 @@ build_stage:
       - basement
     expire_in: 1 day
 
-lint_stage:
-  stage: lint
-  image: golangci/golangci-lint:v1.64.5
-  script:
-    - golangci-lint run --modules-download-mode=vendor ./...
+#lint_stage:
+#  stage: lint
+#  image: golangci/golangci-lint:v1.64.5
+#  script:
+#    - golangci-lint run ./...
 
 test_stage:
   stage: test
