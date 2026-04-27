@@ -49,6 +49,13 @@ func UpdateUser(id string, u models.UserModel) error {
 	return nil
 }
 
+func GetUserByEmail(email string) (models.UserModel, error) {
+	query := `SELECT id, username, email, password_hash, CAST(dob AS TEXT), CAST(created_at AS TEXT) FROM users WHERE email = $1`
+	var u models.UserModel
+	err := database.DB.QueryRow(query, email).Scan(&u.ID, &u.Name, &u.Email, &u.PasswordHash, &u.DOB, &u.CreatedAt)
+	return u, err
+}
+
 func GetUsers() ([]models.UserModel, error) {
 	// Run database query
 	rows, err := database.DB.Query("SELECT id, username, email, CAST(dob AS TEXT), CAST(created_at AS TEXT) FROM users")
