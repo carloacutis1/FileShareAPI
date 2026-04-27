@@ -20,7 +20,9 @@ func SearchItems(db *sql.DB, query string, userID string) ([]models.SearchResult
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		_ = rows.Close()
+	}(rows)
 
 	var results []models.SearchResult
 	for rows.Next() {
