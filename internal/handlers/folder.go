@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/database/queries"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 // ListFolders handles GET /folders

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/database"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 // setupMock replaces database.DB with a sqlmock instance and returns

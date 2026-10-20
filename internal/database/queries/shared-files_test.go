@@ -3,7 +3,7 @@ package queries
 import (
 	"database/sql"
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 	"regexp"
 	"testing"
 )

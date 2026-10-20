@@ -3,7 +3,7 @@ package routes
 // Import packages
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
+	"github.com/carloacutis1/FileShareAPI/internal/handlers"
 )
 
 // User model api routes

@@ -7,9 +7,9 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
+	"github.com/carloacutis1/FileShareAPI/internal/database"
+	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/carloacutis1/FileShareAPI/internal/storage"
 )
 
 func init() {

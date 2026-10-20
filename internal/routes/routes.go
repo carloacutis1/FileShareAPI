@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
+	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/carloacutis1/FileShareAPI/internal/storage"
 )
 
 func SetupRoutes(router *gin.Engine, blobStore storage.ObjectStore) {

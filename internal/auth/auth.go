@@ -9,8 +9,8 @@ import (
 "github.com/gin-gonic/gin"
 "github.com/golang-jwt/jwt/v5"
 "golang.org/x/crypto/bcrypt"
-"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
-"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+"github.com/carloacutis1/FileShareAPI/internal/database/queries"
+"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 var jwtSecret = []byte("your-secret-key") // In production, use env var

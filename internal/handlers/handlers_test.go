@@ -18,7 +18,7 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
+	"github.com/carloacutis1/FileShareAPI/internal/storage"
 )
 
 // init and setupDB are declared in testing_helpers_test.go and shared across this package.

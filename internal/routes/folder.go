@@ -3,7 +3,7 @@ package routes
 // folder model api routes
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
+	"github.com/carloacutis1/FileShareAPI/internal/handlers"
 )
 
 // SetupFolderRoutes registers folder CRUD routes

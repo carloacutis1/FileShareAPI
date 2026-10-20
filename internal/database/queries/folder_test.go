@@ -7,7 +7,7 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 func sampleFolder() models.Folder {

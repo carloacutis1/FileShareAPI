@@ -6,8 +6,8 @@ package queries
 import (
 	"database/sql"
 
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/database"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 // GetAllFiles retrieves all files from the database

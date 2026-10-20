@@ -2,7 +2,7 @@ package routes
 
 import (
 "github.com/gin-gonic/gin"
-"gitlab.franciscan.edu/spr-26-backend/basement/internal/auth"
+"github.com/carloacutis1/FileShareAPI/internal/auth"
 )
 
 func SetupAuthRoutes(router *gin.Engine) {

@@ -6,8 +6,8 @@ import (
 	"net/http" // Import HTTP Client & Server Functionality - MH
 
 	"github.com/gin-gonic/gin"                                                // Import GIN - MH
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries" // Connect with models folder containing other user.go - MH
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/database/queries" // Connect with models folder containing other user.go - MH
+	"github.com/carloacutis1/FileShareAPI/internal/models"
 )
 
 // ListUserModels handles GET /users

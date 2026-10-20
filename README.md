@@ -3,7 +3,7 @@
 A comprehensive file storage API backend built with Go and Gin Web Framework, designed to replicate Google Drive functionality with user account management, hierarchical folder structures, file uploads/downloads, and file sharing capabilities.
 
 **Project:** SPR-26 Backend Web-Dev
-**Repository:** `gitlab.franciscan.edu/spr-26-backend/basement`
+**Repository:** `github.com/carloacutis1/FileShareAPI`
 
 ## Development Team
 
@@ -481,7 +481,7 @@ type SharedFile struct {
 ### 1. Clone the Repository
 
 ```bash
-git clone https://gitlab.franciscan.edu/spr-26-backend/basement.git
+git clone https://github.com/carloacutis1/FileShareAPI.git
 cd basement
 ```
 

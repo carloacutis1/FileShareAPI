@@ -1,4 +1,4 @@
-module gitlab.franciscan.edu/spr-26-backend/basement
+module github.com/carloacutis1/FileShareAPI
 
 go 1.25.0
 

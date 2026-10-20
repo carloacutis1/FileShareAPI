@@ -1,6 +1,6 @@
 package handlers
 
-import "gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
+import "github.com/carloacutis1/FileShareAPI/internal/storage"
 
 // FileHandler serves file HTTP routes and optional blob storage.
 type FileHandler struct {

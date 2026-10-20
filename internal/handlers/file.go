@@ -13,9 +13,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database/queries"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/models"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/storage"
+	"github.com/carloacutis1/FileShareAPI/internal/database/queries"
+	"github.com/carloacutis1/FileShareAPI/internal/models"
+	"github.com/carloacutis1/FileShareAPI/internal/storage"
 )
 
 const maxFileUploadBytes = 32 << 20 // 32 MiB

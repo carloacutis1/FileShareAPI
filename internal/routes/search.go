@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/database"
-	"gitlab.franciscan.edu/spr-26-backend/basement/internal/handlers"
+	"github.com/carloacutis1/FileShareAPI/internal/database"
+	"github.com/carloacutis1/FileShareAPI/internal/handlers"
 )
 
 // RegisterSearchRoutes registers search related routes
