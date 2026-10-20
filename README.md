@@ -482,7 +482,7 @@ type SharedFile struct {
 
 ```bash
 git clone https://github.com/carloacutis1/FileShareAPI.git
-cd basement
+cd FileShareAPI
 ```
 
 ### 2. Install Go Dependencies
