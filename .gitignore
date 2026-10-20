@@ -2,3 +2,12 @@
 basement
 cmd/api/main
 cmd/api/basement
+
+# compiled binaries
+/main
+/api
+coverage.out
+
+# OS / editor files
+.DS_Store
+.claude/settings.local.json

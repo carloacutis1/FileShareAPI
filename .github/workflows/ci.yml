@@ -1,0 +1,31 @@
+# CI pipeline: mirrors .gitlab-ci.yml (validate, build, test)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # validate: make sure all dependencies download and verify
+      - name: Validate dependencies
+        run: |
+          go mod download
+          go mod verify
+
+      # build: compile the API binary
+      - name: Build
+        run: go build -o basement ./cmd/api/main.go
+
+      # test: run all unit tests with coverage
+      - name: Test
+        run: go test -v ./... -coverprofile=coverage.out
