@@ -2,8 +2,8 @@ package routes
 
 // Import packages
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 // User model api routes

@@ -4,10 +4,10 @@ import (
 	"context"
 	"log"
 
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database"
 	"github.com/carloacutis1/FileShareAPI/internal/routes"
 	"github.com/carloacutis1/FileShareAPI/internal/storage"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {

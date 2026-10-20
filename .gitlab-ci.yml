@@ -11,7 +11,7 @@ stages:
   # each stage will run to make sure our whole codebase works for each merge request
   - validate
   - build
-  #- lint
+  - lint
   - test
 
 validate_stage:
@@ -37,11 +37,13 @@ build_stage:
       - basement
     expire_in: 1 day
 
-#lint_stage:
-#  stage: lint
-#  image: golangci/golangci-lint:v1.64.5
-#  script:
-#    - golangci-lint run ./...
+lint_stage:
+  # lint stage checks for common bugs and style issues
+  # golangci-lint v2 is required to support Go 1.25
+  stage: lint
+  image: golangci/golangci-lint:v2.15.0
+  script:
+    - golangci-lint run ./...
 
 test_stage:
   stage: test

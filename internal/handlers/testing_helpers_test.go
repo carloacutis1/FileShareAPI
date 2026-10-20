@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {

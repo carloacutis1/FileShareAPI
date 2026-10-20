@@ -5,9 +5,9 @@ import (
 	"log"
 	"net/http" // Import HTTP Client & Server Functionality - MH
 
-	"github.com/gin-gonic/gin"                                                // Import GIN - MH
 	"github.com/carloacutis1/FileShareAPI/internal/database/queries" // Connect with models folder containing other user.go - MH
 	"github.com/carloacutis1/FileShareAPI/internal/models"
+	"github.com/gin-gonic/gin" // Import GIN - MH
 )
 
 // ListUserModels handles GET /users

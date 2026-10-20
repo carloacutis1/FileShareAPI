@@ -7,9 +7,9 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database/queries"
 	"github.com/carloacutis1/FileShareAPI/internal/models"
+	"github.com/gin-gonic/gin"
 )
 
 // ListFolders handles GET /folders

@@ -2,8 +2,8 @@ package routes
 
 // folder model api routes
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 // SetupFolderRoutes registers folder CRUD routes

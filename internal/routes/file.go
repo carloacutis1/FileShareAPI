@@ -2,8 +2,8 @@ package routes
 
 // regular file model api routes
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 // write all routes in this function that will be called in routes.go

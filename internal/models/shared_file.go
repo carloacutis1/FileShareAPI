@@ -3,11 +3,11 @@ package models
 // joshua fouch
 
 type SharedFile struct {
-    ID           string    `json:"id"`
-    FileID       string    `json:"file_id"`
-    OwnerID      string    `json:"owner_id"`
-    SharedWith   string	   `json:"shared_with"` // this is an id of the user it is shared with
-    Permissions	 string	   `json:"permissions"`
+	ID          string `json:"id"`
+	FileID      string `json:"file_id"`
+	OwnerID     string `json:"owner_id"`
+	SharedWith  string `json:"shared_with"` // this is an id of the user it is shared with
+	Permissions string `json:"permissions"`
 }
 
 // instantiate some SharedFiles in a slice
@@ -24,4 +24,3 @@ type SharedFile struct {
 //func GetSharedFiles() []SharedFile {
 //	return sharedFiles
 //}
-

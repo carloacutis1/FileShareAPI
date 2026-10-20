@@ -10,15 +10,15 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"regexp"
 	"strings"
 	"testing"
-	"net/textproto"
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/storage"
+	"github.com/gin-gonic/gin"
 )
 
 // init and setupDB are declared in testing_helpers_test.go and shared across this package.

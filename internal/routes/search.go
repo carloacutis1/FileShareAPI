@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database"
 	"github.com/carloacutis1/FileShareAPI/internal/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 // RegisterSearchRoutes registers search related routes

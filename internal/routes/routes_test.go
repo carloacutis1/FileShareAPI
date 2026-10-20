@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database"
 	"github.com/carloacutis1/FileShareAPI/internal/handlers"
 	"github.com/carloacutis1/FileShareAPI/internal/storage"
+	"github.com/gin-gonic/gin"
 )
 
 func init() {

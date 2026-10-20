@@ -41,9 +41,9 @@ func sampleFile() models.File {
 		UploadedBy:       "user-1",
 		Tags:             "report,annual",
 		LastAccessed:     time.Time{},
-		Checksum:           "abc123",
-		StorageObjectKey:   "objects/file-1",
-		CustomAttributes:   `{"confidential":true}`,
+		Checksum:         "abc123",
+		StorageObjectKey: "objects/file-1",
+		CustomAttributes: `{"confidential":true}`,
 	}
 }
 

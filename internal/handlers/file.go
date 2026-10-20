@@ -12,10 +12,10 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/carloacutis1/FileShareAPI/internal/database/queries"
 	"github.com/carloacutis1/FileShareAPI/internal/models"
 	"github.com/carloacutis1/FileShareAPI/internal/storage"
+	"github.com/gin-gonic/gin"
 )
 
 const maxFileUploadBytes = 32 << 20 // 32 MiB
